@@ -3,9 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Wetland Photo Gallery</title>
+    <title>My Project Image Gallery</title>
     <style>
-        /* ... (Your CSS from before goes here, unchanged) ... */
+        /* Basic CSS for the gallery layout */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .gallery-container {
+            display: grid; /* Use CSS Grid for responsive layout */
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Smaller thumbnails: min width 200px */
+            gap: 15px; /* Space between grid items */
+            padding: 10px;
+            max-width: 1200px; /* Max width for the gallery */
+            margin: 0 auto; /* Center the gallery */
+        }
+        .gallery-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden; /* Ensures image corners respect border-radius */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background-color: #fff;
+            display: flex;
+            flex-direction: column; /* Stack image, title, and caption */
+            transition: transform 0.2s ease-in-out; /* Smooth hover effect */
+        }
+        .gallery-item:hover {
+            transform: translateY(-5px); /* Lift effect on hover */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .gallery-item a {
+            display: block; /* Make the entire image area clickable */
+            text-decoration: none; /* Remove underline from link */
+            color: inherit; /* Inherit text color */
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 180px; /* Fixed height for thumbnails */
+            object-fit: cover; /* Covers the area, might crop parts of the image */
+            display: block; /* Removes extra space below image */
+            border-bottom: 1px solid #eee; /* Separator for title/caption */
+        }
+        .gallery-item .title {
+            padding: 10px 10px 5px 10px; /* Adjust padding */
+            font-weight: bold;
+            text-align: center;
+            color: #2c3e50; /* Darker color for title */
+        }
+        .gallery-item .caption {
+            padding: 0 10px 10px 10px; /* Adjust padding */
+            font-size: 0.85em; /* Slightly smaller font for caption */
+            color: #666;
+            text-align: center;
+            flex-grow: 1; /* Allows caption to take remaining space if item has varying height */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .gallery-container {
+                grid-template-columns: 1fr; /* Single column on small screens */
+            }
+        }
     </style>
 </head>
 <body>
@@ -14,40 +79,49 @@
     <div class="gallery-container">
         <div class="gallery-item">
             <div class="title">Roman Forum Ruins</div>
-            <img src="IMG_4686.JPG" alt="Ancient Roman Forum ruins.">
+            <a href="IMG_4686.JPG" target="_blank"> <img src="IMG_4686.JPG" alt="Ancient Roman Forum ruins.">
+            </a>
             <div class="caption">A view of the ancient Roman Forum ruins near the Colosseum.</div>
         </div>
 
         <div class="gallery-item">
             <div class="title">Vatican City</div>
-            <img src="20170605_135949417_iOS.jpg" alt="View of Vatican City from afar.">
+            <a href="20170605_135949417_iOS.jpg" target="_blank"> <img src="20170605_135949417_iOS.jpg" alt="View of Vatican City from afar.">
+            </a>
             <div class="caption">A panoramic view capturing the majestic dome of St. Peter's Basilica in Vatican City.</div>
         </div>
 
         <div class="gallery-item">
             <div class="title">Colosseum Interior</div>
-            <img src="IMG_4685.JPG" alt="Inside the Roman Colosseum.">
+            <a href="IMG_4685.JPG" target="_blank"> <img src="IMG_4685.JPG" alt="Inside the Roman Colosseum.">
+            </a>
             <div class="caption">The impressive interior architecture of the Roman Colosseum, revealing its grand scale.</div>
         </div>
 
         <div class="gallery-item">
             <div class="title">Coastal Wetland Birds</div>
-            <img src="IMG_5217.JPG" alt="Birds in a coastal wetland.">
+            <a href="IMG_5217.JPG" target="_blank">
+                <img src="IMG_5217.JPG" alt="Birds in a coastal wetland.">
+            </a>
             <div class="caption">Various species of birds foraging in a serene coastal wetland environment.</div>
         </div>
 
         <div class="gallery-item">
             <div class="title">Riverside Reeds</div>
-            <img src="IMG_5666.JPG" alt="Tall reeds along a riverbank.">
+            <a href="IMG_5666.JPG" target="_blank">
+                <img src="IMG_5666.JPG" alt="Tall reeds along a riverbank.">
+            </a>
             <div class="caption">Lush, tall reeds growing along the tranquil banks of a river, indicating healthy riparian zone.</div>
         </div>
 
         <div class="gallery-item">
             <div class="title">Marsh Landscape</div>
-            <img src="IMG_5670.JPG" alt="Expansive marsh landscape.">
+            <a href="IMG_5670.JPG" target="_blank">
+                <img src="IMG_5670.JPG" alt="Expansive marsh landscape.">
+            </a>
             <div class="caption">An expansive view of a marsh landscape under a clear sky, showcasing its unique ecosystem.</div>
         </div>
-        
+
         </div>
 
 </body>
