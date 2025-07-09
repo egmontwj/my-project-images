@@ -3,126 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Project Image Gallery</title>
+    <title>My Global Research Map</title>
     <style>
-        /* Basic CSS for the gallery layout */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
-            color: #333;
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; /* Hide scrollbars if globe takes full screen */
+            font-family: sans-serif;
         }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 30px;
-        }
-        .gallery-container {
-            display: grid; /* Use CSS Grid for responsive layout */
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Smaller thumbnails: min width 200px */
-            gap: 15px; /* Space between grid items */
-            padding: 10px;
-            max-width: 1200px; /* Max width for the gallery */
-            margin: 0 auto; /* Center the gallery */
-        }
-        .gallery-item {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden; /* Ensures image corners respect border-radius */
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            background-color: #fff;
-            display: flex;
-            flex-direction: column; /* Stack image, title, and caption */
-            transition: transform 0.2s ease-in-out; /* Smooth hover effect */
-        }
-        .gallery-item:hover {
-            transform: translateY(-5px); /* Lift effect on hover */
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        .gallery-item a {
-            display: block; /* Make the entire image area clickable */
-            text-decoration: none; /* Remove underline from link */
-            color: inherit; /* Inherit text color */
-        }
-        .gallery-item img {
+        #map-container {
             width: 100%;
-            height: 180px; /* Fixed height for thumbnails */
-            object-fit: cover; /* Covers the area, might crop parts of the image */
-            display: block; /* Removes extra space below image */
-            border-bottom: 1px solid #eee; /* Separator for title/caption */
+            height: 100%;
+            position: absolute; /* Take up full page */
+            top: 0;
+            left: 0;
         }
-        .gallery-item .title {
-            padding: 10px 10px 5px 10px; /* Adjust padding */
-            font-weight: bold;
-            text-align: center;
-            color: #2c3e50; /* Darker color for title */
-        }
-        .gallery-item .caption {
-            padding: 0 10px 10px 10px; /* Adjust padding */
-            font-size: 0.85em; /* Slightly smaller font for caption */
-            color: #666;
-            text-align: center;
-            flex-grow: 1; /* Allows caption to take remaining space if item has varying height */
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 600px) {
-            .gallery-container {
-                grid-template-columns: 1fr; /* Single column on small screens */
-            }
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: rgba(255, 255, 255, 0.85);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 1000; /* Ensure it's above the globe */
         }
     </style>
 </head>
 <body>
-    <h1>My Project Image Gallery</h1>
+    <div id="map-container"></div>
 
-    <div class="gallery-container">
-        <div class="gallery-item">
-            <div class="title">Roman Forum Ruins</div>
-            <a href="IMG_4686.JPG" target="_blank"> <img src="IMG_4686.JPG" alt="Ancient Roman Forum ruins.">
-            </a>
-            <div class="caption">A view of the ancient Roman Forum ruins near the Colosseum.</div>
+    <div class="info-panel">
+        <h1>My Research Areas</h1>
+        <p>Interactive globe showing results for Chicago, Guangzhou, and Rome.</p>
+        <p><i>(Data from Google Earth Engine)</i></p>
         </div>
 
-        <div class="gallery-item">
-            <div class="title">Vatican City</div>
-            <a href="20170605_135949417_iOS.jpg" target="_blank"> <img src="20170605_135949417_iOS.jpg" alt="View of Vatican City from afar.">
-            </a>
-            <div class="caption">A panoramic view capturing the majestic dome of St. Peter's Basilica in Vatican City.</div>
-        </div>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn6IAsNJCDovztYuCqK8uE1eYG7GADACE&callback=initGlobe&v=beta">
+    </script>
 
-        <div class="gallery-item">
-            <div class="title">Colosseum Interior</div>
-            <a href="IMG_4685.JPG" target="_blank"> <img src="IMG_4685.JPG" alt="Inside the Roman Colosseum.">
-            </a>
-            <div class="caption">The impressive interior architecture of the Roman Colosseum, revealing its grand scale.</div>
-        </div>
+    <script>
+        let map; // Declare a variable to hold the globe instance
 
-        <div class="gallery-item">
-            <div class="title">Coastal Wetland Birds</div>
-            <a href="IMG_5217.JPG" target="_blank">
-                <img src="IMG_5217.JPG" alt="Birds in a coastal wetland.">
-            </a>
-            <div class="caption">Various species of birds foraging in a serene coastal wetland environment.</div>
-        </div>
+        function initGlobe() {
+            // This function is called once the Google Maps Platform API is loaded.
+            const mapOptions = {
+                center: { lat: 30, lng: 0 }, // Initial center (near equator)
+                zoom: 1, // Initial zoom level
+                mapTypeId: 'satellite', // Or 'terrain' or 'roadmap'
+                gestureHandling: 'greedy', // Better for mobile interaction
+                mapTypeControl: false, // Hide default map type buttons
+                // Crucial for 3D Earth view:
+                mapId: 'YOUR_CUSTOM_MAP_ID_HERE', // Optional: Use a custom map ID for specific styles (e.g., globe).
+                                                  // For basic Earth mode, 'satellite' mapTypeId often suffices
+                                                  // but for true Earth view, Google might recommend a Map ID.
+                                                  // If you don't have one, you might start with just mapTypeId: 'satellite'
+                                                  // and see if the 'v=beta' enables the 3D tilt.
+            };
 
-        <div class="gallery-item">
-            <div class="title">Riverside Reeds</div>
-            <a href="IMG_5666.JPG" target="_blank">
-                <img src="IMG_5666.JPG" alt="Tall reeds along a riverbank.">
-            </a>
-            <div class="caption">Lush, tall reeds growing along the tranquil banks of a river, indicating healthy riparian zone.</div>
-        </div>
+            // Create the new Map instance (which will be a globe in 'beta')
+            map = new google.maps.Map(document.getElementById('map-container'), mapOptions);
 
-        <div class="gallery-item">
-            <div class="title">Marsh Landscape</div>
-            <a href="IMG_5670.JPG" target="_blank">
-                <img src="IMG_5670.JPG" alt="Expansive marsh landscape.">
-            </a>
-            <div class="caption">An expansive view of a marsh landscape under a clear sky, showcasing its unique ecosystem.</div>
-        </div>
+            // Set the map type to display a globe if 'mapId' isn't used
+            // map.setMapTypeId('satellite'); // Often default, but explicitly set for clarity
 
-        </div>
+            // Attempt to enable the globe view and tilt
+            map.setTilt(45); // Set initial tilt for a 3D perspective
+            map.setHeading(0); // Set initial heading
 
+            // --- Loading your GEE data (conceptual) ---
+            // This part is complex and requires more specific GEE export logic.
+            // Example for a simple GeoJSON layer (if small enough for direct inclusion):
+            // map.data.loadGeoJson('path/to/your_chicago_results.geojson');
+            // map.data.setStyle(function(feature) {
+            //     return /** @type {!google.maps.Data.StyleOptions} */({
+            //         fillColor: feature.getProperty('color'),
+            //         strokeWeight: 1
+            //     });
+            // });
+
+            // Example for a GEE generated tile layer (more common for rasters/large vectors):
+            // You would get this tile URL from your GEE script:
+            // var eeMapId = eeImage.getMapId({bands: ['B4', 'B3', 'B2'], min: 0, max: 0.3});
+            // var eeTileUrl = eeMapId.tile_fetcher.urlFormat;
+            //
+            // const imageMapType = new google.maps.ImageMapType({
+            //   getTileUrl: function(coord, zoom) {
+            //     // Replace this with a function that generates your GEE tile URL
+            //     // based on zoom, x, y. Requires parsing the GEE tile_fetcher.urlFormat
+            //     // (e.g., eeTileUrl.replace('{x}', coord.x).replace('{y}', coord.y).replace('{z}', zoom))
+            //     // This part is significant and requires specific GEE output.
+            //     return 'https://path/to/your/gee/tiles/{z}/{x}/{y}?token=...';
+            //   },
+            //   tileSize: new google.maps.Size(256, 256),
+            //   name: 'GEE Layer',
+            //   maxZoom: 20 // Match GEE's max zoom
+            // });
+            // map.overlayMapTypes.insertAt(0, imageMapType);
+
+
+            // Set initial view to show your locations
+            // For disparate locations like Chicago, Guangzhou, Rome, you'd probably
+            // set a wide global view first, or provide buttons to fly to each city.
+            map.moveCamera({
+                center: { lat: 0, lng: 0 },
+                zoom: 1, // Global zoom
+                heading: 0,
+                tilt: 0
+            });
+
+            // Fly to Chicago example:
+            // setTimeout(() => {
+            //     map.moveCamera({
+            //         center: { lat: 41.8781, lng: -87.6298 },
+            //         zoom: 10,
+            //         tilt: 45
+            //     });
+            // }, 3000); // Fly after 3 seconds
+        }
+
+        // The callback function will be called by the Google Maps Platform API script
+        // when it's fully loaded, initiating your globe.
+    </script>
 </body>
 </html>
