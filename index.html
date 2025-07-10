@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wang Jin Research Results</title> <style>
+    <title>Wang Jin Research Results</title>
+    <style>
         html,
         body {
             height: 100%;
@@ -19,23 +20,22 @@
         }
         .info-panel {
             position: absolute;
-            top: 20px; /* Distance from the top */
-            left: 50%; /* Start at 50% from the left */
-            transform: translateX(-50%); /* Shift left by half its own width to center */
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             background-color: rgba(255, 255, 255, 0.85);
-            padding: 15px 30px; /* More horizontal padding for title */
+            padding: 15px 30px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
             z-index: 1000;
-            text-align: center; /* Ensures text within the panel is centered */
-            white-space: nowrap; /* Prevent title from wrapping unless necessary */
+            text-align: center;
+            white-space: nowrap;
         }
         .info-panel h1 {
-            margin: 0; /* Remove default margin for h1 inside the panel */
-            color: #2c3e50; /* A dark color for the title */
-            font-size: 2em; /* Make the title larger */
+            margin: 0;
+            color: #2c3e50;
+            font-size: 2em;
         }
-        /* Remove paragraphs from the info panel, only h1 remains */
         .info-panel p {
             display: none;
         }
@@ -44,7 +44,7 @@
 <body>
     <gmp-map-3d
         mode="hybrid"
-        center="30.5928, 114.3055" range="15000"              tilt="0"                   heading="0">               </gmp-map-3d>
+        center="30.5928, 114.3055" range="2000000"            tilt="0"                   heading="0">               </gmp-map-3d>
 
     <div class="info-panel">
         <h1>Wang Jin Research Results</h1>
@@ -55,18 +55,6 @@
     </script>
 
     <script>
-        // No explicit 'initGlobe' function is strictly needed anymore for basic display with <gmp-map-3d>
-        // as the element initializes itself. However, you would use this script block
-        // to add dynamic data, controls, or camera animations later.
-
-        // Example: Programmatically change camera after initial load (optional)
-        // const map3dElement = document.querySelector('gmp-map-3d');
-        // map3dElement.addEventListener('gmp-map-ready', () => {
-        //     console.log('Map is ready!');
-        //     // You could add further camera movements or data layers here
-        //     // e.g., map3dElement.flyCameraTo(...)
-        // }, { once: true });
-        
         // This is where you would load your GEE data (SHP/TIF results) later.
         // It's conceptual for now.
     </script>
