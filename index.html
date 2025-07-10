@@ -25,15 +25,14 @@
     </div>
 
     <script async
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPg4UFp8rm-wgQnKtTObibd4tY-wgZcXE&v=beta&libraries=maps3d&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDbcc2rPQDvL0DdB7VKhSL7M6EbiT422DQ&v=beta&libraries=maps3d&callback=initMap">
     </script>
 
     <script>
-    // This function is now called automatically by the Google Maps API
+    // This function is called automatically by the Google Maps API once it's ready.
     function initMap() {
         const mapElement = document.querySelector('gmp-map-3d');
 
-        // This event listener is now added correctly AFTER the API is loaded.
         mapElement.addEventListener('gmp-map-ready', () => {
             const map = mapElement.map;
 
@@ -43,8 +42,7 @@
 
             const shenzhenMapType = new google.maps.ImageMapType({
                 getTileUrl: function(coord, zoom) {
-                    const url = shenzhenTileUrl.replace('{Z}', zoom).replace('{X}', coord.x).replace('{Y}', coord.y);
-                    return url;
+                    return shenzhenTileUrl.replace('{Z}', zoom).replace('{X}', coord.x).replace('{Y}', coord.y);
                 },
                 tileSize: new google.maps.Size(256, 256),
                 name: 'Shenzhen Density',
@@ -55,8 +53,7 @@
 
             const chicagoMapType = new google.maps.ImageMapType({
                 getTileUrl: function(coord, zoom) {
-                    const url = chicagoTileUrl.replace('{Z}', zoom).replace('{X}', coord.x).replace('{Y}', coord.y);
-                    return url;
+                    return chicagoTileUrl.replace('{Z}', zoom).replace('{X}', coord.x).replace('{Y}', coord.y);
                 },
                 tileSize: new google.maps.Size(256, 256),
                 name: 'Chicago Density',
