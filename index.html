@@ -3,87 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Global Research Map (Photorealistic 3D)</title>
-    <style>
+    <title>Wang Jin Research Results</title> <style>
         html,
         body {
             height: 100%;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Ensure no scrollbars, globe takes full screen */
+            overflow: hidden;
             font-family: sans-serif;
         }
-        /* Style for the custom gmp-map-3d element */
         gmp-map-3d {
-            display: block; /* Important for custom elements */
+            display: block;
             width: 100%;
             height: 100%;
         }
         .info-panel {
             position: absolute;
-            top: 20px;
-            left: 20px;
+            top: 20px; /* Distance from the top */
+            left: 50%; /* Start at 50% from the left */
+            transform: translateX(-50%); /* Shift left by half its own width to center */
             background-color: rgba(255, 255, 255, 0.85);
-            padding: 15px;
+            padding: 15px 30px; /* More horizontal padding for title */
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            z-index: 1000; /* Ensure it's above the globe */
+            z-index: 1000;
+            text-align: center; /* Ensures text within the panel is centered */
+            white-space: nowrap; /* Prevent title from wrapping unless necessary */
+        }
+        .info-panel h1 {
+            margin: 0; /* Remove default margin for h1 inside the panel */
+            color: #2c3e50; /* A dark color for the title */
+            font-size: 2em; /* Make the title larger */
+        }
+        /* Remove paragraphs from the info panel, only h1 remains */
+        .info-panel p {
+            display: none;
         }
     </style>
 </head>
 <body>
     <gmp-map-3d
         mode="hybrid"
-        center="30, 0"             range="15000000"           tilt="45"                  heading="0">
-    </gmp-map-3d>
+        center="30.5928, 114.3055" range="15000"              tilt="0"                   heading="0">               </gmp-map-3d>
 
     <div class="info-panel">
-        <h1>My Research Areas</h1>
-        <p>Interactive 3D globe showing results for Chicago, Guangzhou, and Rome.</p>
-        <p><i>(Data from Google Earth Engine)</i></p>
+        <h1>Wang Jin Research Results</h1>
     </div>
 
     <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPg4UFp8rm-wgQnKtTObibd4tY-wgZcXE&v=beta&libraries=maps3d">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPg4UFp8rm-wgQnKtTObibd4tY-wgZcXE&callback=initGlobe&v=beta&libraries=maps3d">
     </script>
 
     <script>
-        // --- Loading GEE Data into this Photorealistic 3D Map (Conceptual) ---
-        // This is a more advanced topic for later, as it requires interacting with the
-        // <gmp-map-3d> element and potentially using google.maps.importLibrary('maps3d').
-        //
-        // You would typically:
-        // 1. Get a reference to your gmp-map-3d element:
-        //    const map3dElement = document.querySelector('gmp-map-3d');
-        //
-        // 2. Load the 'maps3d' library (if not done via the script tag's libraries param or for dynamic loading):
-        //    await google.maps.importLibrary('maps3d');
-        //
-        // 3. Then, you can add data to it. The methods are slightly different
-        //    from the traditional google.maps.Map. You might use:
-        //    - map3dElement.data.loadGeoJson() for small vector files.
-        //    - Or, if you need GEE's processed rasters/large vectors as tiles,
-        //      you would create a CustomMapType and add it via
-        //      map3dElement.overlayMapTypes.push(). This is more involved.
-        //
-        // For now, let's just ensure the globe loads!
+        // No explicit 'initGlobe' function is strictly needed anymore for basic display with <gmp-map-3d>
+        // as the element initializes itself. However, you would use this script block
+        // to add dynamic data, controls, or camera animations later.
 
-        // Example to programmatically fly the camera after init (from tutorial):
-        // This code would run after the map is initialized.
+        // Example: Programmatically change camera after initial load (optional)
         // const map3dElement = document.querySelector('gmp-map-3d');
-        // async function flyToChicago() {
-        //     await google.maps.importLibrary('maps3d');
-        //     map3dElement.flyCameraTo({
-        //         endCamera: {
-        //             center: { lat: 41.8781, lng: -87.6298 }, // Chicago coordinates
-        //             tilt: 67.5,
-        //             range: 10000 // 10km range
-        //         },
-        //         durationMillis: 5000 // Fly animation duration
-        //     });
-        // }
-        // // Call it after some delay or user interaction
-        // // setTimeout(flyToChicago, 5000); 
+        // map3dElement.addEventListener('gmp-map-ready', () => {
+        //     console.log('Map is ready!');
+        //     // You could add further camera movements or data layers here
+        //     // e.g., map3dElement.flyCameraTo(...)
+        // }, { once: true });
+        
+        // This is where you would load your GEE data (SHP/TIF results) later.
+        // It's conceptual for now.
     </script>
 </body>
 </html>
