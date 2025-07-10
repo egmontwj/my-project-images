@@ -36,14 +36,17 @@
             color: #2c3e50;
             font-size: 2em;
         }
+        .info-panel p {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <gmp-map-3d
-        mode="satellite"
-        center="30.5928, 114.3055" 
-        range="6000000"            
-        tilt="0"                   
+        mode="satellite"           
+        center="22.5431, 114.0577" 
+        range="200000"            
+        tilt="45"                   
         heading="0">               
     </gmp-map-3d>
 
@@ -52,44 +55,51 @@
     </div>
 
     <script>
-    // This function will be called automatically by the Google Maps API when it's ready.
-    function initMap() {
-        // Now that the API is ready, we can safely listen for the map element to be ready.
+    function addStaticLayers() {
         document.querySelector('gmp-map-3d').addEventListener('gmp-map-ready', () => {
-            
             const map = document.querySelector('gmp-map-3d').map;
 
             const bucketName = 'myearth-465423-bucket';
             const shenzhenTileUrl = `https://storage.googleapis.com/${bucketName}/shenzhen_tiles/{Z}/{X}/{Y}.png`;
             const chicagoTileUrl = `https://storage.googleapis.com/${bucketName}/chicago_tiles/{Z}/{X}/{Y}.png`;
 
-            // This code is now safe because we know google.maps has been loaded.
             const shenzhenMapType = new google.maps.ImageMapType({
                 getTileUrl: function(coord, zoom) {
-                    return shenzhenTileUrl.replace('{Z}', zoom).replace('{X}', coord.x).replace('{Y}', coord.y);
+                    const url = shenzhenTileUrl.replace('{Z}', zoom).replace('{X}', coord.x).replace('{Y}', coord.y);
+                    // --- DEBUGGING LINE ---
+                    console.log("Requesting Shenzhen Tile:", url); 
+                    return url;
                 },
                 tileSize: new google.maps.Size(256, 256),
                 name: 'Shenzhen Density',
-                opacity: 0.7
+                opacity: 0.7,
+                minZoom: 1, // Explicitly set zoom range
+                maxZoom: 13
             });
 
             const chicagoMapType = new google.maps.ImageMapType({
                 getTileUrl: function(coord, zoom) {
-                    return chicagoTileUrl.replace('{Z}', zoom).replace('{X}', coord.x).replace('{Y}', coord.y);
+                    const url = chicagoTileUrl.replace('{Z}', zoom).replace('{X}', coord.x).replace('{Y}', coord.y);
+                     // --- DEBUGGING LINE ---
+                    console.log("Requesting Chicago Tile:", url);
+                    return url;
                 },
                 tileSize: new google.maps.Size(256, 256),
                 name: 'Chicago Density',
-                opacity: 0.7
+                opacity: 0.7,
+                minZoom: 1, // Explicitly set zoom range
+                maxZoom: 13
             });
 
             map.overlayMapTypes.push(shenzhenMapType);
             map.overlayMapTypes.push(chicagoMapType);
         });
     }
+    addStaticLayers();
     </script>
     
     <script async
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPg4UFp8rm-wgQnKtTObibd4tY-wgZcXE&v=beta&libraries=maps3d&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPg4UFp8rm-wgQnKtTObibd4tY-wgZcXE&v=beta&libraries=maps3d">
     </script>
 </body>
 </html>
