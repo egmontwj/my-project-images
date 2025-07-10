@@ -1,102 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wang Jin Research Results</title>
-    <style>
-        html,
-        body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            font-family: sans-serif;
-        }
-        gmp-map-3d {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-        .info-panel {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(255, 255, 255, 0.85);
-            padding: 15px 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            z-index: 1000;
-            text-align: center;
-            white-space: nowrap;
-        }
-        .info-panel h1 {
-            margin: 0;
-            color: #2c3e50;
-            font-size: 2em;
-        }
-        .info-panel p {
-            display: none;
-        }
-    </style>
-</head>
-<body>
-    <gmp-map-3d
-        mode="satellite"           center="30.5928, 114.3055" range="6000000"           tilt="0"               heading="0">           </gmp-map-3d>
+<script>
+    function addStaticLayers() {
+        document.querySelector('gmp-map-3d').addEventListener('gmp-map-ready', () => {
+            const map = document.querySelector('gmp-map-3d').map;
 
-    <div class="info-panel">
-        <h1>Wang Jin Research Results</h1>
-    </div>
+            const bucketName = 'myearth-465423-bucket';
+            const shenzhenTileUrl = `https://storage.googleapis.com/${bucketName}/shenzhen_tiles/{Z}/{X}/{Y}.png`;
+            const chicagoTileUrl = `https://storage.googleapis.com/${bucketName}/chicago_tiles/{Z}/{X}/{Y}.png`;
 
-    <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPg4UFp8rm-wgQnKtTObibd4tY-wgZcXE&callback=initGlobe&v=beta&libraries=maps3d">
-    </script>
+            const shenzhenMapType = new google.maps.ImageMapType({
+                getTileUrl: function(coord, zoom) {
+                    return shenzhenTileUrl.replace('{Z}', zoom).replace('{X}', coord.x).replace('{Y}', coord.y);
+                },
+                tileSize: new google.maps.Size(256, 256),
+                name: 'Shenzhen Density',
+                opacity: 0.7
+            });
 
-    <script>
-    function initGlobe() {
-        // Get a reference to the underlying Google Map object from the <gmp-map-3d> element.
-        const map = document.querySelector('gmp-map-3d').map;
+            const chicagoMapType = new google.maps.ImageMapType({
+                getTileUrl: function(coord, zoom) {
+                    return chicagoTileUrl.replace('{Z}', zoom).replace('{X}', coord.x).replace('{Y}', coord.y);
+                },
+                tileSize: new google.maps.Size(256, 256),
+                name: 'Chicago Density',
+                opacity: 0.7
+            });
 
-        // ====================================================================
-        // YOUR GEE CREDENTIALS ARE NOW INCLUDED
-        // ====================================================================
-        const shenzhenMapId = 'projects/myearth-465423/maps/63da00098036211dfaba5c6eaf9a40c8-8b013f8b9c21b0f987986c5299c3899d';
-        // The token below is very long, ensure you copy the entire string.
-        const shenzhenToken = 'https://earthengine.googleapis.com/v1/projects/myearth-465423/maps/63da00098036211dfaba5c6eaf9a40c8-8b013f8b9c21b0f987986c5299c3899d/tiles/%7Bz%7D/%7Bx%7D/%7By%7D'; // You need to copy the full token from your GEE console for Shenzhen
-
-        const chicagoMapId = 'projects/myearth-465423/maps/c8d8c11906d0db037e143107275cbb32-bd4790937f605a36c5ba60c5026f5f33';
-         // The token below is very long, ensure you copy the entire string.
-        const chicagoToken = 'https://earthengine.googleapis.com/v1/projects/myearth-465423/maps/c8d8c11906d0db037e143107275cbb32-bd4790937f605a36c5ba60c5026f5f33/tiles/%7Bz%7D/%7Bx%7D/%7By%7D'; // You need to copy the full token from your GEE console for Chicago
-        // ====================================================================
-
-        // Define the GEE layer for Shenzhen
-        const shenzhenMapType = new google.maps.ImageMapType({
-            getTileUrl: function(coord, zoom) {
-                // Constructs the URL for each tile based on its coordinates and zoom level
-                const url = `https://earthengine.googleapis.com/v1/${shenzhenMapId}/tiles/${zoom}/${coord.x}/${coord.y}?token=${shenzhenToken}`;
-                return url;
-            },
-            tileSize: new google.maps.Size(256, 256),
-            name: 'Shenzhen Density',
-            opacity: 0.7 // Set transparency directly
+            map.overlayMapTypes.push(shenzhenMapType);
+            map.overlayMapTypes.push(chicagoMapType);
         });
-
-        // Define the GEE layer for Chicago
-        const chicagoMapType = new google.maps.ImageMapType({
-            getTileUrl: function(coord, zoom) {
-                const url = `https://earthengine.googleapis.com/v1/${chicagoMapId}/tiles/${zoom}/${coord.x}/${coord.y}?token=${chicagoToken}`;
-                return url;
-            },
-            tileSize: new google.maps.Size(256, 256),
-            name: 'Chicago Density',
-            opacity: 0.7 // Set transparency directly
-        });
-
-        // Add the GEE layers to the map as overlays
-        map.overlayMapTypes.push(shenzhenMapType);
-        map.overlayMapTypes.push(chicagoMapType);
     }
-    </script>
-</body>
-</html>
+    addStaticLayers();
+</script>
