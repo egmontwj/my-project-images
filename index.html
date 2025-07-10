@@ -43,8 +43,7 @@
 </head>
 <body>
     <gmp-map-3d
-        mode="hybrid"
-        center="30.5928, 114.3055" range="5000000"            tilt="0"                   heading="0">               </gmp-map-3d>
+        mode="hybrid"             center="30.5928, 114.3055" range="6000000"            tilt="0"                   heading="0">               </gmp-map-3d>
 
     <div class="info-panel">
         <h1>Wang Jin Research Results</h1>
@@ -55,8 +54,9 @@
     </script>
 
     <script>
-        // This is where you would load your GEE data (SHP/TIF results) later.
-        // It's conceptual for now.
+        // No explicit 'initGlobe' function is strictly needed anymore for basic display with <gmp-map-3d>
+        // as the element initializes itself. However, you would use this script block
+        // to add dynamic data, controls, or camera animations later.
     </script>
 </body>
 </html>
