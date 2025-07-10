@@ -43,7 +43,7 @@
 </head>
 <body>
     <gmp-map-3d
-        mode="satellite"             center="30.5928, 114.3055" range="6000000"            tilt="0"                   heading="0">               </gmp-map-3d>
+        mode="satellite"           center="30.5928, 114.3055" range="6000000"           tilt="0"               heading="0">           </gmp-map-3d>
 
     <div class="info-panel">
         <h1>Wang Jin Research Results</h1>
@@ -54,9 +54,49 @@
     </script>
 
     <script>
-        // No explicit 'initGlobe' function is strictly needed anymore for basic display with <gmp-map-3d>
-        // as the element initializes itself. However, you would use this script block
-        // to add dynamic data, controls, or camera animations later.
+    function initGlobe() {
+        // Get a reference to the underlying Google Map object from the <gmp-map-3d> element.
+        const map = document.querySelector('gmp-map-3d').map;
+
+        // ====================================================================
+        // YOUR GEE CREDENTIALS ARE NOW INCLUDED
+        // ====================================================================
+        const shenzhenMapId = 'projects/myearth-465423/maps/63da00098036211dfaba5c6eaf9a40c8-8b013f8b9c21b0f987986c5299c3899d';
+        // The token below is very long, ensure you copy the entire string.
+        const shenzhenToken = ''; // You need to copy the full token from your GEE console for Shenzhen
+
+        const chicagoMapId = 'projects/myearth-465423/maps/c8d8c11906d0db037e143107275cbb32-bd4790937f605a36c5ba60c5026f5f33';
+         // The token below is very long, ensure you copy the entire string.
+        const chicagoToken = ''; // You need to copy the full token from your GEE console for Chicago
+        // ====================================================================
+
+        // Define the GEE layer for Shenzhen
+        const shenzhenMapType = new google.maps.ImageMapType({
+            getTileUrl: function(coord, zoom) {
+                // Constructs the URL for each tile based on its coordinates and zoom level
+                const url = `https://earthengine.googleapis.com/v1/${shenzhenMapId}/tiles/${zoom}/${coord.x}/${coord.y}?token=${shenzhenToken}`;
+                return url;
+            },
+            tileSize: new google.maps.Size(256, 256),
+            name: 'Shenzhen Density',
+            opacity: 0.7 // Set transparency directly
+        });
+
+        // Define the GEE layer for Chicago
+        const chicagoMapType = new google.maps.ImageMapType({
+            getTileUrl: function(coord, zoom) {
+                const url = `https://earthengine.googleapis.com/v1/${chicagoMapId}/tiles/${zoom}/${coord.x}/${coord.y}?token=${chicagoToken}`;
+                return url;
+            },
+            tileSize: new google.maps.Size(256, 256),
+            name: 'Chicago Density',
+            opacity: 0.7 // Set transparency directly
+        });
+
+        // Add the GEE layers to the map as overlays
+        map.overlayMapTypes.push(shenzhenMapType);
+        map.overlayMapTypes.push(chicagoMapType);
+    }
     </script>
 </body>
 </html>
