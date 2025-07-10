@@ -44,7 +44,6 @@
             const shenzhenMapType = new google.maps.ImageMapType({
                 getTileUrl: function(coord, zoom) {
                     const url = shenzhenTileUrl.replace('{Z}', zoom).replace('{X}', coord.x).replace('{Y}', coord.y);
-                    console.log("Requesting Shenzhen Tile:", url); // This should now work
                     return url;
                 },
                 tileSize: new google.maps.Size(256, 256),
@@ -57,7 +56,6 @@
             const chicagoMapType = new google.maps.ImageMapType({
                 getTileUrl: function(coord, zoom) {
                     const url = chicagoTileUrl.replace('{Z}', zoom).replace('{X}', coord.x).replace('{Y}', coord.y);
-                    console.log("Requesting Chicago Tile:", url); // This should now work
                     return url;
                 },
                 tileSize: new google.maps.Size(256, 256),
