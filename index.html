@@ -1,80 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Wang Jin Research Results</title>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <title>Wang Jin Research Globe</title>
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
   <style>
-    html, body, #map {
-      height: 100%;
-      margin: 0;
+    html, body, #cesiumContainer {
+      width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
+      font-family: sans-serif;
     }
     .info-panel {
-        position: absolute;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: rgba(255, 255, 255, 0.85);
-        padding: 15px 30px;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        z-index: 1000;
-        text-align: center;
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(255, 255, 255, 0.85);
+      padding: 15px 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      z-index: 1000;
+      text-align: center;
     }
     .info-panel h1 {
-        margin: 0;
-        font-size: 2em;
+      margin: 0;
+      font-size: 2em;
     }
   </style>
-
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
+  <div id="cesiumContainer"></div>
+  <div class="info-panel">
+    <h1>Wang Jin Research Globe</h1>
+  </div>
 
-<div id="map"></div>
-<div class="info-panel">
-  <h1>Wang Jin Research Results</h1>
-</div>
+  <script>
+    // Initialize Cesium viewer
+    const viewer = new Cesium.Viewer('cesiumContainer', {
+      imageryProvider: Cesium.createWorldImagery(),  // satellite base
+      baseLayerPicker: false,
+      timeline: false,
+      animation: false
+    });
 
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script>
-  // Initialize the map and center it between Shenzhen and Chicago
-  var map = L.map('map', {
-    center: [30.5928, 114.3055], // Shenzhen center
-    zoom: 8
-  });
+    // Add POI tile layer from GCS
+    const poiLayer = viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
+      url: 'https://storage.googleapis.com/myearth-465423-bucket/shenzhen_tiles/{z}/{x}/{y}.png',
+      maximumLevel: 13,
+      credit: 'Shenzhen POI'
+    }));
 
-  // Base layer (OpenStreetMap)
-  var baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
-
-  // Shenzhen density tiles
-  var shenzhenLayer = L.tileLayer('https://storage.googleapis.com/myearth-465423-bucket/shenzhen_tiles/{z}/{x}/{y}.png', {
-    opacity: 0.7,
-    attribution: 'Shenzhen POI Density'
-  });
-
-  // Chicago density tiles
-  var chicagoLayer = L.tileLayer('https://storage.googleapis.com/myearth-465423-bucket/chicago_tiles/{z}/{x}/{y}.png', {
-    opacity: 0.7,
-    attribution: 'Chicago POI Density'
-  });
-
-  // Layer control switcher
-  var overlayMaps = {
-    "Shenzhen Density": shenzhenLayer,
-    "Chicago Density": chicagoLayer
-  };
-
-  L.control.layers(null, overlayMaps, {collapsed: false}).addTo(map);
-
-  // Add Shenzhen layer by default
-  shenzhenLayer.addTo(map);
-</script>
-
+    // Optional: fly to region
+    viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(114.3055, 30.5928, 2000000)  // Shenzhen
+    });
+  </script>
 </body>
 </html>
