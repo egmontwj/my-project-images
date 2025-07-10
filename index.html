@@ -36,14 +36,12 @@
             color: #2c3e50;
             font-size: 2em;
         }
-        .info-panel p {
-            display: none;
-        }
     </style>
 </head>
 <body>
     <gmp-map-3d
-        mode="satellite"           center="30.5928, 114.3055" 
+        mode="satellite"
+        center="30.5928, 114.3055" 
         range="6000000"            
         tilt="0"                   
         heading="0">               
@@ -54,21 +52,20 @@
     </div>
 
     <script>
-    function addStaticLayers() {
-        // This waits for the map element to be fully initialized before running code
+    // This function will be called automatically by the Google Maps API when it's ready.
+    function initMap() {
+        // Now that the API is ready, we can safely listen for the map element to be ready.
         document.querySelector('gmp-map-3d').addEventListener('gmp-map-ready', () => {
             
             const map = document.querySelector('gmp-map-3d').map;
 
-            // --- Define the URL to your tiles in Google Cloud Storage ---
             const bucketName = 'myearth-465423-bucket';
             const shenzhenTileUrl = `https://storage.googleapis.com/${bucketName}/shenzhen_tiles/{Z}/{X}/{Y}.png`;
             const chicagoTileUrl = `https://storage.googleapis.com/${bucketName}/chicago_tiles/{Z}/{X}/{Y}.png`;
 
-            // --- Define the tile layer for Shenzhen ---
+            // This code is now safe because we know google.maps has been loaded.
             const shenzhenMapType = new google.maps.ImageMapType({
                 getTileUrl: function(coord, zoom) {
-                    // Replace the placeholders with the actual coordinates and zoom
                     return shenzhenTileUrl.replace('{Z}', zoom).replace('{X}', coord.x).replace('{Y}', coord.y);
                 },
                 tileSize: new google.maps.Size(256, 256),
@@ -76,7 +73,6 @@
                 opacity: 0.7
             });
 
-            // --- Define the tile layer for Chicago ---
             const chicagoMapType = new google.maps.ImageMapType({
                 getTileUrl: function(coord, zoom) {
                     return chicagoTileUrl.replace('{Z}', zoom).replace('{X}', coord.x).replace('{Y}', coord.y);
@@ -86,17 +82,14 @@
                 opacity: 0.7
             });
 
-            // Add the layers to the map
             map.overlayMapTypes.push(shenzhenMapType);
             map.overlayMapTypes.push(chicagoMapType);
         });
     }
-    // Run the function to set everything up
-    addStaticLayers();
     </script>
     
     <script async
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPg4UFp8rm-wgQnKtTObibd4tY-wgZcXE&v=beta&libraries=maps3d">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPg4UFp8rm-wgQnKtTObibd4tY-wgZcXE&v=beta&libraries=maps3d&callback=initMap">
     </script>
 </body>
 </html>
