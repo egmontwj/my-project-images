@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Global Research Map</title>
+    <title>My Global Research Map (Photorealistic 3D)</title>
     <style>
-        body, html {
+        html,
+        body {
+            height: 100%;
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow: hidden; /* Hide scrollbars if globe takes full screen */
+            overflow: hidden; /* Ensure no scrollbars, globe takes full screen */
             font-family: sans-serif;
         }
-        #map-container {
+        /* Style for the custom gmp-map-3d element */
+        gmp-map-3d {
+            display: block; /* Important for custom elements */
             width: 100%;
             height: 100%;
-            position: absolute; /* Take up full page */
-            top: 0;
-            left: 0;
         }
         .info-panel {
             position: absolute;
@@ -32,97 +32,58 @@
     </style>
 </head>
 <body>
-    <div id="map-container"></div>
+    <gmp-map-3d
+        mode="hybrid"
+        center="30, 0"             range="15000000"           tilt="45"                  heading="0">
+    </gmp-map-3d>
 
     <div class="info-panel">
         <h1>My Research Areas</h1>
-        <p>Interactive globe showing results for Chicago, Guangzhou, and Rome.</p>
+        <p>Interactive 3D globe showing results for Chicago, Guangzhou, and Rome.</p>
         <p><i>(Data from Google Earth Engine)</i></p>
-        </div>
+    </div>
 
     <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPg4UFp8rm-wgQnKtTObibd4tY-wgZcXE&callback=initGlobe&v=beta">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPg4UFp8rm-wgQnKtTObibd4tY-wgZcXE&v=beta&libraries=maps3d">
     </script>
 
     <script>
-        let map;
+        // --- Loading GEE Data into this Photorealistic 3D Map (Conceptual) ---
+        // This is a more advanced topic for later, as it requires interacting with the
+        // <gmp-map-3d> element and potentially using google.maps.importLibrary('maps3d').
+        //
+        // You would typically:
+        // 1. Get a reference to your gmp-map-3d element:
+        //    const map3dElement = document.querySelector('gmp-map-3d');
+        //
+        // 2. Load the 'maps3d' library (if not done via the script tag's libraries param or for dynamic loading):
+        //    await google.maps.importLibrary('maps3d');
+        //
+        // 3. Then, you can add data to it. The methods are slightly different
+        //    from the traditional google.maps.Map. You might use:
+        //    - map3dElement.data.loadGeoJson() for small vector files.
+        //    - Or, if you need GEE's processed rasters/large vectors as tiles,
+        //      you would create a CustomMapType and add it via
+        //      map3dElement.overlayMapTypes.push(). This is more involved.
+        //
+        // For now, let's just ensure the globe loads!
 
-        function initGlobe() {
-            // This function is called once the Google Maps Platform API is loaded.
-            const mapOptions = {
-                center: { lat: 30, lng: 0 }, // Initial center (near equator)
-                zoom: 1, // Initial zoom level
-                mapTypeId: 'satellite', // This map type will show the Earth imagery
-                gestureHandling: 'greedy', // Better for mobile interaction
-                mapTypeControl: false, // Hide default map type buttons
-                // --- CRUCIAL FOR 3D GLOBE ---
-                mapId: '692233b7eb6da65163b0f057', // <--- YOUR MAP ID IS INSERTED HERE!
-            };
-
-            // Create the new Map instance (which will be a globe with the correct mapId and v=beta)
-            map = new google.maps.Map(document.getElementById('map-container'), mapOptions);
-
-            // Attempt to enable the globe view and tilt
-            map.setTilt(45); // Set initial tilt for a 3D perspective
-            map.setHeading(0); // Set initial heading
-
-            // --- Loading your GEE data (conceptual placeholder) ---
-            // This part is for *later* when you integrate your actual SHP/TIF results from GEE.
-            // It will involve generating export URLs (e.g., GeoJSON, or GEE Image Tile URLs)
-            // from your GEE script and loading them here.
-
-            // Example for a simple GeoJSON layer (if small enough for direct inclusion on GitHub Pages):
-            // map.data.loadGeoJson('path/to/your_chicago_results.geojson');
-            // map.data.setStyle(function(feature) {
-            //     return /** @type {!google.maps.Data.StyleOptions} */({
-            //         fillColor: feature.getProperty('color') || 'blue',
-            //         strokeWeight: 1
-            //     });
-            // });
-
-            // Example for a GEE generated tile layer (more common for rasters/large vectors):
-            // This requires you to get a mapId from your GEE script (e.g., eeImage.getMapId(...))
-            // and then construct the tile URL format.
-            //
-            // const GEE_TILE_URL_FORMAT = 'https://earthengine.googleapis.com/v1alpha/projects/earthengine-public/maps/YOUR_GEE_MAP_ID/tiles/{z}/{x}/{y}'; // This needs your actual GEE Map ID
-            //
-            // const geeOverlayMapType = new google.maps.ImageMapType({
-            //   getTileUrl: function(coord, zoom) {
-            //     let url = GEE_TILE_URL_FORMAT;
-            //     url = url.replace('{x}', coord.x);
-            //     url = url.replace('{y}', coord.y);
-            //     url = url.replace('{z}', zoom);
-            //     return url;
-            //   },
-            //   tileSize: new google.maps.Size(256, 256),
-            //   name: 'My GEE Data Layer',
-            //   maxZoom: 20 // Match GEE's max zoom
-            // });
-            // map.overlayMapTypes.insertAt(0, geeOverlayMapType);
-
-
-            // Set initial view to show your locations
-            // For disparate locations like Chicago, Guangzhou, Rome, you'd probably
-            // set a wide global view first, or provide buttons to fly to each city.
-            map.moveCamera({
-                center: { lat: 0, lng: 0 }, // Initial global view
-                zoom: 1, // Global zoom
-                heading: 0,
-                tilt: 0
-            });
-
-            // Example: Fly to Chicago (uncomment and adjust as needed)
-            // setTimeout(() => {
-            //     map.moveCamera({
-            //         center: { lat: 41.8781, lng: -87.6298 }, // Chicago coordinates
-            //         zoom: 10,
-            //         tilt: 45
-            //     });
-            // }, 3000); // Fly after 3 seconds
-        }
-
-        // The 'callback=initGlobe' in the script tag means that the 'initGlobe' function
-        // will be automatically called once the Google Maps Platform API is fully loaded.
+        // Example to programmatically fly the camera after init (from tutorial):
+        // This code would run after the map is initialized.
+        // const map3dElement = document.querySelector('gmp-map-3d');
+        // async function flyToChicago() {
+        //     await google.maps.importLibrary('maps3d');
+        //     map3dElement.flyCameraTo({
+        //         endCamera: {
+        //             center: { lat: 41.8781, lng: -87.6298 }, // Chicago coordinates
+        //             tilt: 67.5,
+        //             range: 10000 // 10km range
+        //         },
+        //         durationMillis: 5000 // Fly animation duration
+        //     });
+        // }
+        // // Call it after some delay or user interaction
+        // // setTimeout(flyToChicago, 5000); 
     </script>
 </body>
 </html>
