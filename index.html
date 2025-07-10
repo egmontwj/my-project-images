@@ -37,22 +37,22 @@
   <script>
     // Initialize Cesium viewer
     const viewer = new Cesium.Viewer('cesiumContainer', {
-      imageryProvider: Cesium.createWorldImagery(),  // satellite base
+      imageryProvider: Cesium.createWorldImagery(),
       baseLayerPicker: false,
       timeline: false,
       animation: false
     });
 
-    // Add POI tile layer from GCS
-    const poiLayer = viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
+    // Add tile overlay from GCS
+    viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
       url: 'https://storage.googleapis.com/myearth-465423-bucket/shenzhen_tiles/{z}/{x}/{y}.png',
       maximumLevel: 13,
       credit: 'Shenzhen POI'
     }));
 
-    // Optional: fly to region
+    // Fly to Shenzhen
     viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(114.3055, 30.5928, 2000000)  // Shenzhen
+      destination: Cesium.Cartesian3.fromDegrees(114.3055, 30.5928, 2000000)
     });
   </script>
 </body>
