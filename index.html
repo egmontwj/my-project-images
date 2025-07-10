@@ -27,7 +27,7 @@
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            z-index: 1000; /* Ensure it's above the globe */
+            z-index: 1000;
         }
     </style>
 </head>
@@ -38,94 +38,40 @@
         <h1>My Research Areas</h1>
         <p>Interactive globe showing results for Chicago, Guangzhou, and Rome.</p>
         <p><i>(Data from Google Earth Engine)</i></p>
-        </div>
+    </div>
 
     <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn6IAsNJCDovztYuCqK8uE1eYG7GADACE&callback=initGlobe&v=beta">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPg4UFp8rm-wgQnKtTObibd4tY-wgZcXE&callback=initGlobe&v=beta">
     </script>
 
     <script>
-        let map; // Declare a variable to hold the globe instance
+        let map;
 
         function initGlobe() {
-            // This function is called once the Google Maps Platform API is loaded.
             const mapOptions = {
                 center: { lat: 30, lng: 0 }, // Initial center (near equator)
                 zoom: 1, // Initial zoom level
-                mapTypeId: 'satellite', // Or 'terrain' or 'roadmap'
+                mapTypeId: 'satellite', // This map type will show the Earth imagery
                 gestureHandling: 'greedy', // Better for mobile interaction
                 mapTypeControl: false, // Hide default map type buttons
-                // Crucial for 3D Earth view:
-                mapId: 'YOUR_CUSTOM_MAP_ID_HERE', // Optional: Use a custom map ID for specific styles (e.g., globe).
-                                                  // For basic Earth mode, 'satellite' mapTypeId often suffices
-                                                  // but for true Earth view, Google might recommend a Map ID.
-                                                  // If you don't have one, you might start with just mapTypeId: 'satellite'
-                                                  // and see if the 'v=beta' enables the 3D tilt.
+                // --- CRUCIAL FOR 3D GLOBE ---
+                mapId: '692233b7eb6da65163b0f057', // <--- YOUR ACTUAL MAP ID IS INSERTED HERE!
             };
 
-            // Create the new Map instance (which will be a globe in 'beta')
             map = new google.maps.Map(document.getElementById('map-container'), mapOptions);
 
-            // Set the map type to display a globe if 'mapId' isn't used
-            // map.setMapTypeId('satellite'); // Often default, but explicitly set for clarity
-
-            // Attempt to enable the globe view and tilt
             map.setTilt(45); // Set initial tilt for a 3D perspective
             map.setHeading(0); // Set initial heading
 
-            // --- Loading your GEE data (conceptual) ---
-            // This part is complex and requires more specific GEE export logic.
-            // Example for a simple GeoJSON layer (if small enough for direct inclusion):
-            // map.data.loadGeoJson('path/to/your_chicago_results.geojson');
-            // map.data.setStyle(function(feature) {
-            //     return /** @type {!google.maps.Data.StyleOptions} */({
-            //         fillColor: feature.getProperty('color'),
-            //         strokeWeight: 1
-            //     });
-            // });
+            // (GEE data loading conceptual placeholders remain here)
 
-            // Example for a GEE generated tile layer (more common for rasters/large vectors):
-            // You would get this tile URL from your GEE script:
-            // var eeMapId = eeImage.getMapId({bands: ['B4', 'B3', 'B2'], min: 0, max: 0.3});
-            // var eeTileUrl = eeMapId.tile_fetcher.urlFormat;
-            //
-            // const imageMapType = new google.maps.ImageMapType({
-            //   getTileUrl: function(coord, zoom) {
-            //     // Replace this with a function that generates your GEE tile URL
-            //     // based on zoom, x, y. Requires parsing the GEE tile_fetcher.urlFormat
-            //     // (e.g., eeTileUrl.replace('{x}', coord.x).replace('{y}', coord.y).replace('{z}', zoom))
-            //     // This part is significant and requires specific GEE output.
-            //     return 'https://path/to/your/gee/tiles/{z}/{x}/{y}?token=...';
-            //   },
-            //   tileSize: new google.maps.Size(256, 256),
-            //   name: 'GEE Layer',
-            //   maxZoom: 20 // Match GEE's max zoom
-            // });
-            // map.overlayMapTypes.insertAt(0, imageMapType);
-
-
-            // Set initial view to show your locations
-            // For disparate locations like Chicago, Guangzhou, Rome, you'd probably
-            // set a wide global view first, or provide buttons to fly to each city.
             map.moveCamera({
-                center: { lat: 0, lng: 0 },
+                center: { lat: 0, lng: 0 }, // Initial global view
                 zoom: 1, // Global zoom
                 heading: 0,
                 tilt: 0
             });
-
-            // Fly to Chicago example:
-            // setTimeout(() => {
-            //     map.moveCamera({
-            //         center: { lat: 41.8781, lng: -87.6298 },
-            //         zoom: 10,
-            //         tilt: 45
-            //     });
-            // }, 3000); // Fly after 3 seconds
         }
-
-        // The callback function will be called by the Google Maps Platform API script
-        // when it's fully loaded, initiating your globe.
     </script>
 </body>
 </html>
