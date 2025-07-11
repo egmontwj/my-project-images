@@ -1,63 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wang Jin Research Results (CesiumJS)</title>
-
+  <title>Minimal Cesium Test</title>
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-
   <style>
+    /* Basic styling to make the map fill the page */
     html, body, #cesiumContainer {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      padding: 0;
+      width: 100%; 
+      height: 100%; 
+      margin: 0; 
+      padding: 0; 
       overflow: hidden;
-    }
-    .info-panel {
-        position: absolute;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: rgba(255, 255, 255, 0.85);
-        padding: 15px 30px;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        z-index: 1000;
-        text-align: center;
-        font-family: sans-serif;
-    }
-    .info-panel h1 {
-        margin: 0;
-        font-size: 2em;
     }
   </style>
 </head>
 <body>
 
-<div id="cesiumContainer"></div>
-<div class="info-panel">
-  <h1>Wang Jin Research Results</h1>
-</div>
+  <div id="cesiumContainer"></div>
 
-<script>
-  // We are providing a public base map from OpenStreetMap to avoid the "blue ball" issue.
-  const viewer = new Cesium.Viewer('cesiumContainer', {
-    imageryProvider: new Cesium.OpenStreetMapImageryProvider({
-        url : 'https://a.tile.openstreetmap.org/'
-    }),
-    animation: false,
-    timeline: false,
-    geocoder: false,
-    homeButton: false,
-    sceneModePicker: false,
-    baseLayerPicker: false,
-    navigationHelpButton: false,
-  });
+  <script>
+    console.log("Attempting to create Cesium Viewer...");
 
-  // --- URLs to your tiles in Google Cloud Storage ---
-  const bucketName = 'myearth-465423-bucket';
-  const shenzhenTileUrl = `https://storage.googleapis.com/${bucketName}/shenzhen_tiles/{z}/{x}/{y}.png`;
-  const chicagoTileUrl = `https://storage.googleapis.com/${bucketName}/chicago_tiles/{z}/{x}/{y}.png
+    try {
+      // This is the only command we are trying to run.
+      const viewer = new Cesium.Viewer('cesiumContainer');
+
+      console.log("Cesium Viewer created successfully. You should see a globe.");
+
+    } catch (error) {
+      // If there is any error at all, it will be caught and printed here.
+      console.error("A critical error occurred during initialization:", error);
+    }
+  </script>
+
+</body>
+</html>
