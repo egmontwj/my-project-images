@@ -43,7 +43,6 @@
       border-radius: 8px;
       font-family: sans-serif;
       z-index: 1000;
-      /* --- NEW: Added width for longer text --- */
       width: 350px; 
     }
     #layer-panel h3 {
@@ -61,7 +60,6 @@
     #layer-panel label {
       vertical-align: middle;
       padding-left: 5px;
-      /* --- NEW: Smaller font size --- */
       font-size: 13px;
     }
   </style>
@@ -82,10 +80,11 @@
     </li>
     <li>
       <input type="checkbox" id="chicago-checkbox" value="chicago" checked>
-      <label for="chicago-checkbox">Kernel density map of tweet POI in Chicago, USA</label>
+      <label for="chicago-checkbox">Kernel density map of Tweet POI in Chicago, USA</label>
     </li>
   </ul>
 </div>
+
 <script>
   let viewer;
   try {
@@ -139,7 +138,8 @@
                 destination: Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000), // Shenzhen
                 orientation: {
                     heading: Cesium.Math.toRadians(0.0),
-                    pitch: Cesium.Math.toRadians(-45.0)
+                    pitch: Cesium.Math.toRadians(-90.0),
+                    roll: 0.0
                 }
             });
         }
@@ -152,7 +152,8 @@
                 destination: Cesium.Cartesian3.fromDegrees(-87.6298, 41.8781, 200000), // Chicago
                 orientation: {
                     heading: Cesium.Math.toRadians(0.0),
-                    pitch: Cesium.Math.toRadians(-45.0)
+                    pitch: Cesium.Math.toRadians(-90.0),
+                    roll: 0.0
                 }
             });
         }
