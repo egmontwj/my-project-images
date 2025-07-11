@@ -43,64 +43,74 @@
 </div>
 
 <script>
-  let viewer;
-  try {
-    // Step 1: Create the viewer with NO base layer.
-    viewer = new Cesium.Viewer('cesiumContainer', {
-      imageryProvider: false, // This is the key.
-      animation: false,
-      timeline: false,
-      geocoder: false,
-      homeButton: false,
-      sceneModePicker: false,
-      baseLayerPicker: false,
-      navigationHelpButton: false,
-    });
-  } catch (error) {
-    console.error("ERROR creating viewer:", error);
-  }
+  // --- Create a custom list of base map layers ---
+  const imageryViewModels = [];
+  imageryViewModels.push(new Cesium.ProviderViewModel({
+      name: 'Road Map',
+      tooltip: 'OpenStreetMap',
+      iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/openStreetMap.png'),
+      creationFunction: function() {
+          return new Cesium.OpenStreetMapImageryProvider({
+              url: 'https://a.tile.openstreetmap.org/'
+          });
+      }
+  }));
+  imageryViewModels.push(new Cesium.ProviderViewModel({
+      name: 'Satellite',
+      tooltip: 'Esri World Imagery',
+      iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/esriWorldImagery.png'),
+      creationFunction: function() {
+          return new Cesium.ArcGisMapServerImageryProvider({
+              url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer'
+          });
+      }
+  }));
 
-  // Step 2: Now that the viewer exists, add all layers programmatically.
-  if (viewer) {
-    // Add the working OpenStreetMap base layer
-    viewer.imageryLayers.addImageryProvider(
-      new Cesium.OpenStreetMapImageryProvider({
-        url: 'https://a.tile.openstreetmap.org/'
-      })
-    );
 
-    // --- Define your custom POI layers ---
-    const bucketName = 'myearth-465423-bucket';
-    const shenzhenTileUrl = `https://storage.googleapis.com/${bucketName}/shenzhen_tiles/{z}/{x}/{y}.png`;
-    const chicagoTileUrl = `https://storage.googleapis.com/${bucketName}/chicago_tiles/{z}/{x}/{y}.png`;
+  // --- Initialize the Cesium Viewer with the new layer options ---
+  const viewer = new Cesium.Viewer('cesiumContainer', {
+    imageryProviderViewModels: imageryViewModels,
+    selectedImageryProviderViewModel: imageryViewModels[0], // Start with the Road Map selected
+    baseLayerPicker: true, // Show the base layer picker widget
+    // Hide other unnecessary UI elements
+    animation: false,
+    timeline: false,
+    geocoder: false,
+    homeButton: false,
+    sceneModePicker: false,
+    navigationHelpButton: false,
+  });
 
-    const shenzhenProvider = new Cesium.UrlTemplateImageryProvider({
-        url: shenzhenTileUrl,
-        maximumLevel: 13
-    });
+  // --- URLs to your tiles in Google Cloud Storage ---
+  const bucketName = 'myearth-465423-bucket';
+  const shenzhenTileUrl = `https://storage.googleapis.com/${bucketName}/shenzhen_tiles/{z}/{x}/{y}.png`;
+  const chicagoTileUrl = `https://storage.googleapis.com/${bucketName}/chicago_tiles/{z}/{x}/{y}.png`;
 
-    const chicagoProvider = new Cesium.UrlTemplateImageryProvider({
-        url: chicagoTileUrl,
-        maximumLevel: 13
-    });
+  // --- Create and add your POI layers ---
+  const shenzhenProvider = new Cesium.UrlTemplateImageryProvider({
+      url: shenzhenTileUrl,
+      maximumLevel: 13
+  });
+  const chicagoProvider = new Cesium.UrlTemplateImageryProvider({
+      url: chicagoTileUrl,
+      maximumLevel: 13
+  });
 
-    // --- Add your POI layers to the globe ---
-    const chicagoLayer = viewer.imageryLayers.addImageryProvider(chicagoProvider);
-    const shenzhenLayer = viewer.imageryLayers.addImageryProvider(shenzhenProvider);
+  const chicagoLayer = viewer.imageryLayers.addImageryProvider(chicagoProvider);
+  const shenzhenLayer = viewer.imageryLayers.addImageryProvider(shenzhenProvider);
 
-    // --- Set the transparency for your layers ---
-    chicagoLayer.alpha = 0.7;
-    shenzhenLayer.alpha = 0.7;
+  chicagoLayer.alpha = 0.7;
+  shenzhenLayer.alpha = 0.7;
 
-    // --- Fly the camera to a starting position ---
-    viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000), // Lon, Lat, Height
-        orientation: {
-            heading: Cesium.Math.toRadians(0.0),
-            pitch: Cesium.Math.toRadians(-45.0),
-        }
-    });
-  }
+  // --- Fly the camera to a starting position ---
+  viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000), // Lon, Lat, Height
+      orientation: {
+          heading: Cesium.Math.toRadians(0.0),
+          pitch: Cesium.Math.toRadians(-45.0),
+      }
+  });
+
 </script>
 
 </body>
