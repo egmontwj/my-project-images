@@ -3,10 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WangJin's ResearchGlobe</title>
+  <title>ResearchGlobe by Wang Jin</title>
 
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/cesium-navigation-es6/dist/cesium-navigation.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cesium-navigation-es6/dist/cesium-navigation.css">
+
 
   <style>
     html, body, #cesiumContainer {
@@ -44,14 +48,15 @@
       z-index: 1000;
       width: 350px; 
     }
-    #layer-panel h3 {
+    #layer-panel h4 {
       margin-top: 0;
       margin-bottom: 10px;
     }
     #layer-panel ul {
       list-style: none;
       margin: 0;
-      padding: 0;
+      /* Indent the list for hierarchy */
+      padding-left: 15px; 
     }
     #layer-panel li {
       margin-bottom: 5px;
@@ -130,19 +135,19 @@
 
 <div id="cesiumContainer"></div>
 <div class="info-panel">
-  <h1>WangJin's ResearchGlobe</h1>
+  <h1>ResearchGlobe by Wang Jin</h1>
 </div>
 
 <div id="layer-panel">
-  <h3>Layer Control</h3>
+  <h4>Kernel density map of geotagged post (2021)</h4>
   <ul>
     <li>
       <input type="checkbox" id="shenzhen-checkbox" value="shenzhen" checked>
-      <label for="shenzhen-checkbox">Kernel density map of Weibo POI in Shenzhen, China</label>
+      <label for="shenzhen-checkbox">Shenzhen, China</label>
     </li>
     <li>
       <input type="checkbox" id="chicago-checkbox" value="chicago" checked>
-      <label for="chicago-checkbox">Kernel density map of Tweet POI in Chicago, USA</label>
+      <label for="chicago-checkbox">Chicago, USA</label>
     </li>
   </ul>
 </div>
@@ -188,6 +193,15 @@
   }
 
   if (viewer) {
+    // --- NEW: Initialize the North Arrow and Scale Bar plugin ---
+    const navOptions = {};
+    // A compass arrow that points north
+    navOptions.enableCompass = true; 
+    // A scale bar at the bottom of the screen
+    navOptions.enableDistanceLegend = true; 
+    new CesiumNavigation(viewer, navOptions);
+    // --- END NEW ---
+
     viewer.imageryLayers.addImageryProvider(
       new Cesium.OpenStreetMapImageryProvider({
         url: 'https://a.tile.openstreetmap.org/'
