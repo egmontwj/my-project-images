@@ -8,10 +8,6 @@
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 
-  <script src="https://cdn.jsdelivr.net/npm/cesium-navigation-es6/dist/cesium-navigation.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cesium-navigation-es6/dist/cesium-navigation.css">
-
-
   <style>
     html, body, #cesiumContainer {
       width: 100%;
@@ -48,14 +44,13 @@
       z-index: 1000;
       width: 350px; 
     }
-    #layer-panel h4 {
+    #layer-panel h3, #layer-panel h4 {
       margin-top: 0;
       margin-bottom: 10px;
     }
     #layer-panel ul {
       list-style: none;
       margin: 0;
-      /* Indent the list for hierarchy */
       padding-left: 15px; 
     }
     #layer-panel li {
@@ -139,6 +134,7 @@
 </div>
 
 <div id="layer-panel">
+  <h3>Layer Control</h3> 
   <h4>Kernel density map of geotagged post (2021)</h4>
   <ul>
     <li>
@@ -193,15 +189,6 @@
   }
 
   if (viewer) {
-    // --- NEW: Initialize the North Arrow and Scale Bar plugin ---
-    const navOptions = {};
-    // A compass arrow that points north
-    navOptions.enableCompass = true; 
-    // A scale bar at the bottom of the screen
-    navOptions.enableDistanceLegend = true; 
-    new CesiumNavigation(viewer, navOptions);
-    // --- END NEW ---
-
     viewer.imageryLayers.addImageryProvider(
       new Cesium.OpenStreetMapImageryProvider({
         url: 'https://a.tile.openstreetmap.org/'
