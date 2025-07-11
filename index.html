@@ -1,59 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Wang Jin Research Globe</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wang Jin Research Results (CesiumJS)</title>
+
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
-  <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+
   <style>
     html, body, #cesiumContainer {
-      width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
-      font-family: sans-serif;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
     }
     .info-panel {
-      position: absolute;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: rgba(255, 255, 255, 0.85);
-      padding: 15px 30px;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      z-index: 1000;
-      text-align: center;
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(255, 255, 255, 0.85);
+        padding: 15px 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        z-index: 1000;
+        text-align: center;
+        font-family: sans-serif;
     }
     .info-panel h1 {
-      margin: 0;
-      font-size: 2em;
+        margin: 0;
+        font-size: 2em;
     }
   </style>
 </head>
 <body>
-  <div id="cesiumContainer"></div>
-  <div class="info-panel">
-    <h1>Wang Jin Research Globe</h1>
-  </div>
 
-  <script>
-    // Initialize Cesium viewer
-    const viewer = new Cesium.Viewer('cesiumContainer', {
-      imageryProvider: Cesium.createWorldImagery(),
-      baseLayerPicker: false,
-      timeline: false,
-      animation: false
-    });
+<div id="cesiumContainer"></div>
+<div class="info-panel">
+  <h1>Wang Jin Research Results</h1>
+</div>
 
-    // Add tile overlay from GCS
-    viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
-      url: 'https://storage.googleapis.com/myearth-465423-bucket/shenzhen_tiles/{z}/{x}/{y}.png',
-      maximumLevel: 13,
-      credit: 'Shenzhen POI'
-    }));
+<script>
+  // Initialize the Cesium Viewer in the div with the ID "cesiumContainer"
+  // We turn off some of the extra UI elements for a cleaner look
+  const viewer = new Cesium.Viewer('cesiumContainer', {
+    animation: false,
+    timeline: false,
+    geocoder: false,
+    homeButton: false,
+    sceneModePicker: false,
+    baseLayerPicker: false,
+    navigationHelpButton: false,
+  });
 
-    // Fly to Shenzhen
-    viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(114.3055, 30.5928, 2000000)
-    });
-  </script>
+  // --- URLs to your tiles in Google Cloud Storage ---
+  const bucketName = 'myearth-465423-bucket';
+  // Note: Cesium uses {z}, {x}, {y} placeholders (lowercase)
+  const shenzhenTileUrl = `https://storage.googleapis.com/${bucketName}/shenzhen_tiles/{z}/{x}/{y}.png`;
+  const chicagoTileUrl = `https://storage.googleapis.com/${bucketName}/chicago_tiles/{z}/{x}/{y}.png`;
+
+  // --- Create an imagery provider for the Shenzhen layer ---
+  const shenzhenProvider = new Cesium.UrlTemplateImageryProvider({
+      url: shenzhenTileUrl,
+      maximumLevel: 13 // Match the maxZoom from your GEE export
+  });
+
+  // --- Create an imagery provider for the Chicago layer ---
+  const chicagoProvider = new Cesium.UrlTemplateImageryProvider({
+      url: chicagoTileUrl,
+      maximumLevel: 13
+  });
+
+  // --- Add the layers to the globe ---
+  // The last layer added will be on top.
+  const chicagoLayer = viewer.imageryLayers.addImageryProvider(chicagoProvider);
+  const shenzhenLayer = viewer.imageryLayers.addImageryProvider(shenzhenProvider);
+
+  // --- Set the transparency for the layers ---
+  chicagoLayer.alpha = 0.7;
+  shenzhenLayer.alpha = 0.7;
+
+  // --- Fly the camera to a starting position ---
+  // We'll fly to Shenzhen, just like in our last test
+  viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000), // Lon, Lat, Height in meters
+      orientation: {
+          heading: Cesium.Math.toRadians(0.0),
+          pitch: Cesium.Math.toRadians(-45.0),
+      }
+  });
+
+</script>
+
 </body>
 </html>
