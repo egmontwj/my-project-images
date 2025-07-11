@@ -1,100 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wang Jin Research Results (Final)</title>
-
+  <title>Base Map Test</title>
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-
   <style>
     html, body, #cesiumContainer {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-    }
-    .info-panel {
-        position: absolute;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: rgba(255, 255, 255, 0.85);
-        padding: 15px 30px;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        z-index: 1000;
-        text-align: center;
-        font-family: sans-serif;
-    }
-    .info-panel h1 {
-        margin: 0;
-        font-size: 2em;
+      width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
     }
   </style>
 </head>
 <body>
+  <div id="cesiumContainer"></div>
+  <script>
+    console.log("Attempting to create viewer with only the OpenStreetMap base layer...");
 
-<div id="cesiumContainer"></div>
-<div class="info-panel">
-  <h1>Wang Jin Research Results</h1>
-</div>
-
-<script>
-  // Initialize the Cesium Viewer.
-  const viewer = new Cesium.Viewer('cesiumContainer', {
-    // --- THIS IS THE FIX ---
-    // We are switching back to the OpenStreetMap base map that we know works for you.
-    imageryProvider: new Cesium.OpenStreetMapImageryProvider({
-        url : 'https://a.tile.openstreetmap.org/'
-    }),
-    // Hide the unnecessary UI elements
-    animation: false,
-    timeline: false,
-    geocoder: false,
-    homeButton: false,
-    sceneModePicker: false,
-    baseLayerPicker: false,
-    navigationHelpButton: false,
-  });
-
-  // --- URLs to your tiles in Google Cloud Storage ---
-  const bucketName = 'myearth-465423-bucket';
-  const shenzhenTileUrl = `https://storage.googleapis.com/${bucketName}/shenzhen_tiles/{z}/{x}/{y}.png`;
-  const chicagoTileUrl = `https://storage.googleapis.com/${bucketName}/chicago_tiles/{z}/{x}/{y}.png`;
-
-  // --- Create an imagery provider for the Shenzhen layer ---
-  const shenzhenProvider = new Cesium.UrlTemplateImageryProvider({
-      url: shenzhenTileUrl,
-      maximumLevel: 13
-  });
-
-  // --- Create an imagery provider for the Chicago layer ---
-  const chicagoProvider = new Cesium.UrlTemplateImageryProvider({
-      url: chicagoTileUrl,
-      maximumLevel: 13
-  });
-
-  // --- Add your POI layers to the globe ---
-  const chicagoLayer = viewer.imageryLayers.addImageryProvider(chicagoProvider);
-  const shenzhenLayer = viewer.imageryLayers.addImageryProvider(shenzhenProvider);
-
-  // --- Set the transparency for your layers ---
-  chicagoLayer.alpha = 0.7;
-  shenzhenLayer.alpha = 0.7;
-
-  // --- Fly the camera to a starting position over Shenzhen ---
-  viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000), // Lon, Lat, Height
-      orientation: {
-          heading: Cesium.Math.toRadians(0.0),
-          pitch: Cesium.Math.toRadians(-45.0),
-      }
-  });
-
-</script>
-
+    try {
+      const viewer = new Cesium.Viewer('cesiumContainer', {
+        // We are only trying to load this one, single layer.
+        imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+          url: 'https://a.tile.openstreetmap.org/'
+        })
+      });
+      console.log("Viewer created. If you see a map, it was successful.");
+    } catch (error) {
+      console.error("ERROR creating viewer:", error);
+    }
+  </script>
 </body>
 </html>
