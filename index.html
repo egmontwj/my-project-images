@@ -33,8 +33,6 @@
         margin: 0;
         font-size: 2em;
     }
-
-    /* --- NEW: Unified styling for all UI panels --- */
     .ui-panel {
       background: rgba(40, 40, 40, 0.8);
       color: white;
@@ -44,18 +42,21 @@
       font-size: 13px;
     }
     .panel-title {
-      font-size: 16px; /* Unified title size */
+      font-size: 16px;
       font-weight: bold;
       margin-top: 0;
       margin-bottom: 10px;
     }
-    /* --- END UNIFIED STYLING --- */
 
     #layer-panel {
       position: absolute;
       top: 95px;
       left: 20px;
       width: 350px; 
+    }
+    #layer-panel h4 {
+      margin-top: 0;
+      margin-bottom: 10px;
     }
     #layer-panel ul {
       list-style: none;
@@ -69,10 +70,15 @@
       vertical-align: middle;
       padding-left: 5px;
     }
-    #layer-panel .citation { /* Style for the new citation text */
-      margin-top: 10px;
+    /* --- NEW/UPDATED CSS FOR CITATION --- */
+    #layer-panel li.citation-item {
+      list-style-type: none; /* Remove bullet point */
+      padding-top: 8px; /* Add space above citation */
+    }
+    #layer-panel .citation {
       font-size: 11px;
       font-style: italic;
+      line-height: 1.3; /* Improve readability */
     }
     #layer-panel .citation a {
       color: #93c5fd;
@@ -111,7 +117,7 @@
       text-align: center;
     }
     #data-panel #coords-value {
-        min-width: 180px; /* Give space for coordinates to display */
+        min-width: 180px;
         display: inline-block;
     }
 
@@ -151,14 +157,16 @@
       <input type="checkbox" id="chicago-checkbox" value="chicago" checked>
       <label for="chicago-checkbox">Chicago, USA</label>
     </li>
+    <li class="citation-item">
+      <div class="citation">
+        Citation & further information: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel impervious surface estimation based on point of interest (POI) data</a>
+      </div>
+    </li>
   </ul>
-  <div class="citation">
-    Citation & further information: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel impervious surface estimation based on point of interest (POI) data</a>
-  </div>
 </div>
 
 <div id="legend-panel" class="ui-panel">
-  <h3 class="panel-title">Legend</h3>
+  <h3 class="panel-title">POI Kernel Density</h3>
   <div class="legend-gradient"></div>
   <div class="legend-labels">
     <span>0</span>
@@ -285,7 +293,6 @@
             const latDMS = toDMS(latitude, 'lat');
             const lonDMS = toDMS(longitude, 'lon');
             
-            // UPDATED: Lat and Lon are now on one line, separated by a comma
             document.getElementById('coords-value').textContent = `${latDMS}, ${lonDMS}`;
         } else {
             document.getElementById('coords-value').textContent = 'No position on globe';
