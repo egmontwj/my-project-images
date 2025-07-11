@@ -57,12 +57,12 @@
   }));
   imageryViewModels.push(new Cesium.ProviderViewModel({
       name: 'Satellite',
-      tooltip: 'Esri World Imagery',
-      iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/esriWorldImagery.png'),
-      creationFunction: function() {
-          return new Cesium.ArcGisMapServerImageryProvider({
-              url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer'
-          });
+      tooltip: 'Sentinel-2 Imagery',
+      iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/sentinel-2.png'),
+      // --- THIS IS THE FIX ---
+      // We are using a different, more reliable satellite layer provider.
+      creationFunction: async function() {
+          return await Cesium.IonImageryProvider.fromAssetId(3954);
       }
   }));
 
