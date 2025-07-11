@@ -43,9 +43,11 @@
 </div>
 
 <script>
-  // Initialize the Cesium Viewer in the div with the ID "cesiumContainer"
-  // We turn off some of the extra UI elements for a cleaner look
+  // We are providing a public base map from OpenStreetMap to avoid the "blue ball" issue.
   const viewer = new Cesium.Viewer('cesiumContainer', {
+    imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+        url : 'https://a.tile.openstreetmap.org/'
+    }),
     animation: false,
     timeline: false,
     geocoder: false,
@@ -57,42 +59,5 @@
 
   // --- URLs to your tiles in Google Cloud Storage ---
   const bucketName = 'myearth-465423-bucket';
-  // Note: Cesium uses {z}, {x}, {y} placeholders (lowercase)
   const shenzhenTileUrl = `https://storage.googleapis.com/${bucketName}/shenzhen_tiles/{z}/{x}/{y}.png`;
-  const chicagoTileUrl = `https://storage.googleapis.com/${bucketName}/chicago_tiles/{z}/{x}/{y}.png`;
-
-  // --- Create an imagery provider for the Shenzhen layer ---
-  const shenzhenProvider = new Cesium.UrlTemplateImageryProvider({
-      url: shenzhenTileUrl,
-      maximumLevel: 13 // Match the maxZoom from your GEE export
-  });
-
-  // --- Create an imagery provider for the Chicago layer ---
-  const chicagoProvider = new Cesium.UrlTemplateImageryProvider({
-      url: chicagoTileUrl,
-      maximumLevel: 13
-  });
-
-  // --- Add the layers to the globe ---
-  // The last layer added will be on top.
-  const chicagoLayer = viewer.imageryLayers.addImageryProvider(chicagoProvider);
-  const shenzhenLayer = viewer.imageryLayers.addImageryProvider(shenzhenProvider);
-
-  // --- Set the transparency for the layers ---
-  chicagoLayer.alpha = 0.7;
-  shenzhenLayer.alpha = 0.7;
-
-  // --- Fly the camera to a starting position ---
-  // We'll fly to Shenzhen, just like in our last test
-  viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000), // Lon, Lat, Height in meters
-      orientation: {
-          heading: Cesium.Math.toRadians(0.0),
-          pitch: Cesium.Math.toRadians(-45.0),
-      }
-  });
-
-</script>
-
-</body>
-</html>
+  const chicagoTileUrl = `https://storage.googleapis.com/${bucketName}/chicago_tiles/{z}/{x}/{y}.png
