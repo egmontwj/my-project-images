@@ -8,8 +8,6 @@
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="cesium-navigation.css">
-
   <style>
     html, body, #cesiumContainer {
       width: 100%;
@@ -137,32 +135,6 @@
     #contact-panel a:hover {
       text-decoration: underline;
     }
-    
-    /* --- NEW CSS TO STYLE THE NAVIGATION PLUGIN --- */
-    .cesium-navigation-container {
-        /* Move the entire widget cluster up */
-        top: 95px !important; 
-    }
-    .cesium-navigation-compass {
-        /* Make the compass smaller */
-        width: 65px !important; 
-        height: 65px !important;
-    }
-    .cesium-navigation-compass-outer-ring-syncing {
-        /* Hide the flashing outer ring */
-        display: none !important;
-    }
-    .cesium-navigation-compass-gyro, .cesium-navigation-compass-tilt-icon {
-        /* Make the inner icons smaller */
-        width: 30px !important;
-        height: 30px !important;
-    }
-    .cesium-navigation-controls {
-        /* Hide the N/E/S/W text labels on the compass */
-        display: none !important;
-    }
-    /* --- END NEW CSS --- */
-
   </style>
 </head>
 <body>
@@ -213,8 +185,6 @@
   <p>wangj329@msu.edu</p>
 </div>
 
-<script src="cesium-navigation.js"></script>
-
 <script>
   let viewer;
   try {
@@ -235,12 +205,6 @@
   }
 
   if (viewer) {
-    // Initialize the North Arrow and Scale Bar plugin
-    const navOptions = {};
-    navOptions.enableCompass = true; 
-    navOptions.enableDistanceLegend = true; 
-    new CesiumNavigation(viewer, navOptions);
-
     viewer.imageryLayers.addImageryProvider(
       new Cesium.OpenStreetMapImageryProvider({
         url: 'https://a.tile.openstreetmap.org/'
