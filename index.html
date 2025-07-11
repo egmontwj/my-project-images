@@ -1,61 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Wang Jin Research Sphere</title>
-  <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
-  <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ResearchGlobe by Wang Jin</title>
+
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+
   <style>
     html, body, #cesiumContainer {
-      width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
       font-family: sans-serif;
     }
-
-    #infoPanel {
-      position: absolute;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: rgba(255, 255, 255, 0.85);
-      padding: 15px 30px;
+    .info-panel {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(40, 40, 40, 0.8);
+        color: white;
+        padding: 10px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        z-index: 1000;
+        text-align: center;
+    }
+    .info-panel h1 {
+        margin: 0;
+        font-size: 2em;
+        color: white;
+    }
+    .ui-panel {
+      background: rgba(40, 40, 40, 0.8);
+      color: white;
+      padding: 10px 15px;
       border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
       z-index: 1000;
-      text-align: center;
-      white-space: nowrap;
+      font-size: 13px;
     }
-
-    #infoPanel h1 {
-      margin: 0;
-      color: #2c3e50;
-      font-size: 2em;
+    .panel-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-top: 0;
+      margin-bottom: 10px;
     }
-
-    #scaleBarContainer {
+    #layer-panel {
       position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1000;
-      background-color: rgba(255, 255, 255, 0.85);
-      padding: 4px 10px;
-      border-radius: 4px;
+      top: 95px;
+      left: 20px;
+      width: 350px; 
+    }
+    #layer-panel h4 {
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+    #layer-panel ul {
+      list-style: none;
+      margin: 0;
+      padding-left: 15px; 
+    }
+    #layer-panel li {
+      margin-bottom: 5px;
+    }
+    #layer-panel label {
+      vertical-align: middle;
+      padding-left: 5px;
+    }
+    #layer-panel .citation {
+      margin-top: 10px;
+      font-size: 11px;
+      font-style: italic;
+    }
+    #layer-panel .citation a {
+      color: #93c5fd;
+      text-decoration: none;
+    }
+     #layer-panel .citation a:hover {
+      text-decoration: underline;
+    }
+    #legend-panel {
+      position: absolute;
+      bottom: 40px;
+      left: 20px;
+      display: none;
+    }
+    #legend-panel.visible {
+      display: block;
+    }
+    .legend-subtitle {
       font-size: 12px;
+      font-style: italic;
+      text-align: center;
+      margin: -8px 0 8px 0;
+    }
+    .legend-gradient {
+      width: 150px;
+      height: 20px;
+      background: linear-gradient(to right, #0000FF, #FFFF00, #FFA500, #FF0000);
+      border-radius: 3px;
+    }
+    .legend-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding-top: 3px;
+    }
+    #data-panel {
+      position: absolute;
+      top: 95px;
+      right: 20px;
+      text-align: center;
+    }
+    #data-panel #coords-value {
+        min-width: 180px;
+        display: inline-block;
+    }
+    #contact-panel {
+      position: absolute;
+      bottom: 40px;
+      right: 20px;
+    }
+    #contact-panel p {
+      margin: 5px 0;
+    }
+    #contact-panel a {
+      color: #93c5fd;
+      text-decoration: none;
+    }
+    #contact-panel a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <div id="cesiumContainer"></div>
 
-  <div id="infoPanel">
-    <h1>Wang Jin Research Results</h1>
+<div id="cesiumContainer"></div>
+<div class="info-panel">
+  <h1>ResearchGlobe by Wang Jin</h1>
+</div>
+
+<div id="layer-panel" class="ui-panel">
+  <h3 class="panel-title">Layer Control</h3>
+  <h4>Kernel density map of geotagged post (2021)</h4>
+  <ul>
+    <li>
+      <input type="checkbox" id="shenzhen-checkbox" value="shenzhen" checked>
+      <label for="shenzhen-checkbox">Shenzhen, China</label>
+    </li>
+    <li>
+      <input type="checkbox" id="chicago-checkbox" value="chicago" checked>
+      <label for="chicago-checkbox">Chicago, USA</label>
+    </li>
+    <li class="citation">
+      Citation & further information: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel impervious surface estimation based on point of interest (POI) data</a>
+    </li>
+  </ul>
+</div>
+
+<div id="legend-panel" class="ui-panel">
+  <h3 class="panel-title">Legend</h3>
+  <h4 class="legend-subtitle">POI Kernel Density</h4>
+  <div class="legend-gradient"></div>
+  <div class="legend-labels">
+    <span>0</span>
+    <span>13000</span>
   </div>
+</div>
 
-  <div id="scaleBarContainer"></div>
+<div id="data-panel" class="ui-panel">
+  <h3 class="panel-title">Value by Click</h3>
+  <span id="coords-value">Click on the map</span>
+</div>
 
-  <script>
-    // Initialize Cesium Viewer with no terrain
-    const viewer = new Cesium.Viewer('cesiumContainer', {
+<div id="contact-panel" class="ui-panel">
+  <h3 class="panel-title">Contact Info</h3>
+  <p><strong><a href="http://globalchange.msu.edu/directory/wang-jin-bio.html" target="_blank" rel="noopener noreferrer">Dr. Wang Jin</a></strong></p>
+  <p><a href="https://scholar.google.com/citations?user=ogvm4OsAAAAJ&hl=en" target="_blank" rel="noopener noreferrer">Google Scholar</a></p>
+  <p>Michigan State University</p>
+  <p>wangj329@msu.edu</p>
+</div>
+
+<script>
+  let viewer;
+  try {
+    viewer = new Cesium.Viewer('cesiumContainer', {
+      imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+          url : 'https://a.tile.openstreetmap.org/'
+      }),
       animation: false,
       timeline: false,
       geocoder: false,
@@ -63,42 +199,115 @@
       sceneModePicker: false,
       baseLayerPicker: false,
       navigationHelpButton: false,
-      terrainProvider: new Cesium.EllipsoidTerrainProvider() // Flat Earth (no elevation)
     });
+  } catch (error) {
+    console.error("ERROR creating viewer:", error);
+  }
 
-    // Add ScaleBar
-    const scaleBar = new Cesium.ScaleBar({
-      container: viewer.container,
-      viewModel: new Cesium.ScaleBarViewModel({
-        scene: viewer.scene
-      })
-    });
-    document.getElementById('scaleBarContainer').appendChild(scaleBar.container);
-
-    // Add custom Shenzhen tiles overlay
-    const shenzhenLayer = viewer.imageryLayers.addImageryProvider(
-      new Cesium.UrlTemplateImageryProvider({
-        url: 'https://storage.googleapis.com/myearth-465423-bucket/shenzhen_tiles/{z}/{x}/{y}.png',
-        tilingScheme: new Cesium.WebMercatorTilingScheme(),
-        maximumLevel: 13,
-        credit: 'Shenzhen POI Density'
+  if (viewer) {
+    viewer.imageryLayers.addImageryProvider(
+      new Cesium.OpenStreetMapImageryProvider({
+        url: 'https://a.tile.openstreetmap.org/'
       })
     );
 
-    // Optional: Add Chicago overlay as separate layer (can toggle or leave it out)
-    const chicagoLayer = viewer.imageryLayers.addImageryProvider(
-      new Cesium.UrlTemplateImageryProvider({
-        url: 'https://storage.googleapis.com/myearth-465423-bucket/chicago_tiles/{z}/{x}/{y}.png',
-        tilingScheme: new Cesium.WebMercatorTilingScheme(),
-        maximumLevel: 13,
-        credit: 'Chicago POI Density',
-        show: false  // set to false by default if only showing Shenzhen initially
-      })
-    );
+    const bucketName = 'myearth-465423-bucket';
+    const shenzhenTileUrl = `https://storage.googleapis.com/${bucketName}/shenzhen_tiles/{z}/{x}/{y}.png`;
+    const chicagoTileUrl = `https://storage.googleapis.com/${bucketName}/chicago_tiles/{z}/{x}/{y}.png`;
 
-    // Match the original <gmp-map-3d> globe view
-    viewer.camera.setView({
-      destination: Cesium.Cartesian3.fromDegrees(114.3055, 30.5928, 6000000), // center and range
-      orientation: {
-        heading: Cesium.Math.toRadians(0),
-        pitch: Cesium.Math.toRadians(-90), /
+    const shenzhenProvider = new Cesium.UrlTemplateImageryProvider({
+        url: shenzhenTileUrl,
+        maximumLevel: 13
+    });
+    const chicagoProvider = new Cesium.UrlTemplateImageryProvider({
+        url: chicagoTileUrl,
+        maximumLevel: 13
+    });
+
+    const chicagoLayer = viewer.imageryLayers.addImageryProvider(chicagoProvider);
+    const shenzhenLayer = viewer.imageryLayers.addImageryProvider(shenzhenProvider);
+
+    chicagoLayer.alpha = 0.7;
+    shenzhenLayer.alpha = 0.7;
+    
+    const shenzhenCheckbox = document.getElementById('shenzhen-checkbox');
+    const chicagoCheckbox = document.getElementById('chicago-checkbox');
+    const legendPanel = document.getElementById('legend-panel');
+
+    function updateLegendVisibility() {
+      if (shenzhenCheckbox.checked || chicagoCheckbox.checked) {
+        legendPanel.classList.add('visible');
+      } else {
+        legendPanel.classList.remove('visible');
+      }
+    }
+
+    shenzhenCheckbox.addEventListener('change', function(event) {
+        shenzhenLayer.show = event.target.checked;
+        if (event.target.checked) {
+            viewer.camera.flyTo({
+                destination: Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000),
+                orientation: { heading: Cesium.Math.toRadians(0.0), pitch: Cesium.Math.toRadians(-90.0), roll: 0.0 }
+            });
+        }
+        updateLegendVisibility();
+    });
+
+    chicagoCheckbox.addEventListener('change', function(event) {
+        chicagoLayer.show = event.target.checked;
+        if (event.target.checked) {
+            viewer.camera.flyTo({
+                destination: Cesium.Cartesian3.fromDegrees(-87.6298, 41.8781, 200000),
+                orientation: { heading: Cesium.Math.toRadians(0.0), pitch: Cesium.Math.toRadians(-90.0), roll: 0.0 }
+            });
+        }
+        updateLegendVisibility();
+    });
+    
+    function toDMS(decimal, type) {
+        const absDecimal = Math.abs(decimal);
+        const degrees = Math.floor(absDecimal);
+        const minutes_float = (absDecimal - degrees) * 60;
+        const minutes = Math.floor(minutes_float);
+        const seconds = ((minutes_float - minutes) * 60).toFixed(2);
+        
+        let direction;
+        if (type === 'lat') {
+            direction = decimal >= 0 ? 'N' : 'S';
+        } else {
+            direction = decimal >= 0 ? 'E' : 'W';
+        }
+        
+        return `${degrees}°${minutes}′${seconds}″ ${direction}`;
+    }
+
+    viewer.screenSpaceEventHandler.setInputAction(function(movement) {
+        const cartesian = viewer.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
+        if (cartesian) {
+            const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+            const longitude = Cesium.Math.toDegrees(cartographic.longitude);
+            const latitude = Cesium.Math.toDegrees(cartographic.latitude);
+            
+            const latDMS = toDMS(latitude, 'lat');
+            const lonDMS = toDMS(longitude, 'lon');
+            
+            document.getElementById('coords-value').textContent = `${latDMS}, ${lonDMS}`;
+        } else {
+            document.getElementById('coords-value').textContent = 'No position on globe';
+        }
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    const initialCameraFlight = viewer.scene.postRender.addEventListener(function() {
+      viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(114.3, 30.6, 3500000),
+        orientation: { heading: Cesium.Math.toRadians(0.0), pitch: Cesium.Math.toRadians(-90.0), roll: 0.0 }
+      });
+      initialCameraFlight();
+    });
+
+    updateLegendVisibility();
+  }
+</script>
+
+</body>
+</html>
