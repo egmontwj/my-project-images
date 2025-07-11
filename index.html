@@ -1,43 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Minimal Cesium Layer Test</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wang Jin Research Results (Final)</title>
+
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+
   <style>
     html, body, #cesiumContainer {
-      width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    .info-panel {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(255, 255, 255, 0.85);
+        padding: 15px 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        z-index: 1000;
+        text-align: center;
+        font-family: sans-serif;
+    }
+    .info-panel h1 {
+        margin: 0;
+        font-size: 2em;
     }
   </style>
 </head>
 <body>
-  <div id="cesiumContainer"></div>
-  <script>
-    console.log("Script started.");
-    let viewer; 
-    try {
-      // Create the viewer with NO base layer. This should show a star sky.
-      viewer = new Cesium.Viewer('cesiumContainer', {
-        imageryProvider: false 
-      });
-      console.log("Cesium Viewer created successfully.");
-    } catch (error) {
-      console.error("ERROR during Viewer creation:", error);
-    }
 
-    // Now, try to add the OSM layer separately.
-    if (viewer) {
-      console.log("Viewer exists. Attempting to add OpenStreetMap layer...");
-      try {
-        const osmLayer = new Cesium.OpenStreetMapImageryProvider({
-            url: "https://a.tile.openstreetmap.org/"
-        });
-        viewer.imageryLayers.addImageryProvider(osmLayer);
-        console.log("OpenStreetMap layer added to viewer.");
-      } catch (error) {
-        console.error("ERROR adding OpenStreetMap layer:", error);
-      }
-    }
-  </script>
+<div id="cesiumContainer"></div>
+<div class="info-panel">
+  <h1>Wang Jin Research Results</h1>
+</div>
+
+<script>
+  let viewer;
+  try {
+    // Step 1: Create the viewer with NO base layer.
+    viewer = new Cesium.Viewer('cesiumContainer', {
+      imageryProvider: false, // This is the key.
+      animation: false,
+      timeline: false,
+      geocoder: false,
+      homeButton: false,
+      sceneModePicker: false,
+      baseLayerPicker: false,
+      navigationHelpButton: false,
+    });
+  } catch (error) {
+    console.error("ERROR creating viewer:", error);
+  }
+
+  // Step 2: Now that the viewer exists, add all layers programmatically.
+  if (viewer) {
+    // Add the working OpenStreetMap base layer
+    viewer.imageryLayers.addImageryProvider(
+      new Cesium.OpenStreetMapImageryProvider({
+        url: 'https://a.tile.openstreetmap.org/'
+      })
+    );
+
+    // --- Define your custom POI layers ---
+    const bucketName = 'myearth-465423-bucket';
+    const shenzhenTileUrl = `https://storage.googleapis.com/${bucketName}/shenzhen_tiles/{z}/{x}/{y}.png`;
+    const chicagoTileUrl = `https://storage.googleapis.com/${bucketName}/chicago_tiles/{z}/{x}/{y}.png`;
+
+    const shenzhenProvider = new Cesium.UrlTemplateImageryProvider({
+        url: shenzhenTileUrl,
+        maximumLevel: 13
+    });
+
+    const chicagoProvider = new Cesium.UrlTemplateImageryProvider({
+        url: chicagoTileUrl,
+        maximumLevel: 13
+    });
+
+    // --- Add your POI layers to the globe ---
+    const chicagoLayer = viewer.imageryLayers.addImageryProvider(chicagoProvider);
+    const shenzhenLayer = viewer.imageryLayers.addImageryProvider(shenzhenProvider);
+
+    // --- Set the transparency for your layers ---
+    chicagoLayer.alpha = 0.7;
+    shenzhenLayer.alpha = 0.7;
+
+    // --- Fly the camera to a starting position ---
+    viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000), // Lon, Lat, Height
+        orientation: {
+            heading: Cesium.Math.toRadians(0.0),
+            pitch: Cesium.Math.toRadians(-45.0),
+        }
+    });
+  }
+</script>
+
 </body>
 </html>
