@@ -43,54 +43,70 @@
 </div>
 
 <script>
-  // Initialize the Cesium Viewer with the OpenStreetMap base layer.
-  const viewer = new Cesium.Viewer('cesiumContainer', {
-    imageryProvider: new Cesium.OpenStreetMapImageryProvider({
-        url : 'https://a.tile.openstreetmap.org/'
-    }),
-    animation: false,
-    timeline: false,
-    geocoder: false,
-    homeButton: false,
-    sceneModePicker: false,
-    baseLayerPicker: false,
-    navigationHelpButton: false,
-  });
+  let viewer;
+  try {
+    // Step 1: Create the viewer with NO base layer.
+    viewer = new Cesium.Viewer('cesiumContainer', {
+      imageryProvider: false, 
+      animation: false,
+      timeline: false,
+      geocoder: false,
+      homeButton: false,
+      sceneModePicker: false,
+      baseLayerPicker: false,
+      navigationHelpButton: false,
+    });
+  } catch (error) {
+    console.error("ERROR creating viewer:", error);
+  }
 
-  // --- URLs to your tiles in Google Cloud Storage ---
-  const bucketName = 'myearth-465423-bucket';
-  const shenzhenTileUrl = `https://storage.googleapis.com/${bucketName}/shenzhen_tiles/{z}/{x}/{y}.png`;
-  const chicagoTileUrl = `https://storage.googleapis.com/${bucketName}/chicago_tiles/{z}/{x}/{y}.png`;
+  // Step 2: Now that the viewer exists, add all layers programmatically.
+  if (viewer) {
+    // Add the working OpenStreetMap base layer
+    viewer.imageryLayers.addImageryProvider(
+      new Cesium.OpenStreetMapImageryProvider({
+        url: 'https://a.tile.openstreetmap.org/'
+      })
+    );
 
-  // --- Create and add your POI layers ---
-  const shenzhenProvider = new Cesium.UrlTemplateImageryProvider({
-      url: shenzhenTileUrl,
-      maximumLevel: 13
-  });
-  const chicagoProvider = new Cesium.UrlTemplateImageryProvider({
-      url: chicagoTileUrl,
-      maximumLevel: 13
-  });
+    // --- Define your custom POI layers ---
+    const bucketName = 'myearth-465423-bucket';
+    const shenzhenTileUrl = `https://storage.googleapis.com/${bucketName}/shenzhen_tiles/{z}/{x}/{y}.png`;
+    const chicagoTileUrl = `https://storage.googleapis.com/${bucketName}/chicago_tiles/{z}/{x}/{y}.png`;
 
-  const chicagoLayer = viewer.imageryLayers.addImageryProvider(chicagoProvider);
-  const shenzhenLayer = viewer.imageryLayers.addImageryProvider(shenzhenProvider);
+    const shenzhenProvider = new Cesium.UrlTemplateImageryProvider({
+        url: shenzhenTileUrl,
+        maximumLevel: 13
+    });
 
-  // --- Set the transparency for your layers ---
-  chicagoLayer.alpha = 0.7;
-  shenzhenLayer.alpha = 0.7;
+    const chicagoProvider = new Cesium.UrlTemplateImageryProvider({
+        url: chicagoTileUrl,
+        maximumLevel: 13
+    });
 
-  // --- THIS IS THE UPDATED CAMERA VIEW ---
-  // Fly the camera to a starting position over Wuhan.
-  viewer.camera.flyTo({
-      // Lon/Lat for Wuhan, Height in meters to see both Beijing and Guangdong
-      destination: Cesium.Cartesian3.fromDegrees(114.3, 30.6, 3500000), 
-      orientation: {
+    // --- Add your POI layers to the globe ---
+    const chicagoLayer = viewer.imageryLayers.addImageryProvider(chicagoProvider);
+    const shenzhenLayer = viewer.imageryLayers.addImageryProvider(shenzhenProvider);
+
+    // --- Set the transparency for your layers ---
+    chicagoLayer.alpha = 0.7;
+    shenzhenLayer.alpha = 0.7;
+
+    // --- THIS IS THE CORRECTED CAMERA VIEW ---
+    // This function waits for the first render, then moves the camera.
+    const initialCameraFlight = viewer.scene.postRender.addEventListener(function() {
+      viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(114.3, 30.6, 3500000), // Wuhan
+        orientation: {
           heading: Cesium.Math.toRadians(0.0),
-          pitch: Cesium.Math.toRadians(-90.0), // -90 degrees is a straight-down view
+          pitch: Cesium.Math.toRadians(-90.0), // Vertical view
           roll: 0.0
-      }
-  });
-
+        }
+      });
+      // Remove the event listener after the first flight to avoid it running again.
+      initialCameraFlight();
+    });
+  }
 </script>
 
 </body>
