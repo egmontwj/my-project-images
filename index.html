@@ -35,7 +35,6 @@
     }
     #layer-panel {
       position: absolute;
-      /* --- CHANGED: Moved panel down --- */
       top: 95px;
       left: 20px;
       background: rgba(40, 40, 40, 0.8);
@@ -63,7 +62,6 @@
       padding-left: 5px;
       font-size: 13px;
     }
-    /* --- NEW CSS FOR LEGEND PANEL --- */
     #legend-panel {
       position: absolute;
       bottom: 40px;
@@ -74,11 +72,9 @@
       border-radius: 8px;
       font-family: sans-serif;
       z-index: 1000;
-      /* Start hidden */
       display: none;
     }
     #legend-panel.visible {
-      /* This class will be added by JS to show the legend */
       display: block;
     }
     #legend-panel h4 {
@@ -88,7 +84,6 @@
     .legend-gradient {
       width: 150px;
       height: 20px;
-      /* Gradient matches the GEE color palette */
       background: linear-gradient(to right, #0000FF, #FFFF00, #FFA500, #FF0000);
       border-radius: 3px;
     }
@@ -125,8 +120,8 @@
   <h4>POI Kernel Density</h4>
   <div class="legend-gradient"></div>
   <div class="legend-labels">
-    <span>Low</span>
-    <span>High</span>
+    <span>0</span>
+    <span>13000</span>
   </div>
 </div>
 
@@ -175,14 +170,12 @@
 
     chicagoLayer.alpha = 0.7;
     shenzhenLayer.alpha = 0.7;
-
-    // --- UPDATED JAVASCRIPT FOR LAYER AND LEGEND CONTROL ---
+    
     const shenzhenCheckbox = document.getElementById('shenzhen-checkbox');
     const chicagoCheckbox = document.getElementById('chicago-checkbox');
     const legendPanel = document.getElementById('legend-panel');
 
     function updateLegendVisibility() {
-      // If either checkbox is checked, show the legend. Otherwise, hide it.
       if (shenzhenCheckbox.checked || chicagoCheckbox.checked) {
         legendPanel.classList.add('visible');
       } else {
@@ -232,7 +225,6 @@
       initialCameraFlight();
     });
 
-    // Call it once on load to set the initial state
     updateLegendVisibility();
   }
 </script>
