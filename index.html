@@ -43,11 +43,12 @@
 </div>
 
 <script>
-  // Initialize the Cesium Viewer
+  // Initialize the Cesium Viewer.
   const viewer = new Cesium.Viewer('cesiumContainer', {
-    // We will use a high-quality satellite base map from Esri, which is free to use.
-    imageryProvider: new Cesium.ArcGisMapServerImageryProvider({
-        url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer'
+    // --- THIS IS THE FIX ---
+    // We are switching back to the OpenStreetMap base map that we know works for you.
+    imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+        url : 'https://a.tile.openstreetmap.org/'
     }),
     // Hide the unnecessary UI elements
     animation: false,
@@ -55,7 +56,7 @@
     geocoder: false,
     homeButton: false,
     sceneModePicker: false,
-    baseLayerPicker: false, // Hide the broken base layer switcher
+    baseLayerPicker: false,
     navigationHelpButton: false,
   });
 
