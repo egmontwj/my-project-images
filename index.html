@@ -17,13 +17,15 @@
       overflow: hidden;
       font-family: sans-serif;
     }
+    /* --- UPDATED: Styling for main title panel --- */
     .info-panel {
         position: absolute;
         top: 20px;
         left: 50%;
         transform: translateX(-50%);
-        background-color: rgba(255, 255, 255, 0.85);
-        padding: 15px 30px;
+        /* Using the same dark background as other panels */
+        background-color: rgba(40, 40, 40, 0.8); 
+        padding: 10px 25px;
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         z-index: 1000;
@@ -32,7 +34,11 @@
     .info-panel h1 {
         margin: 0;
         font-size: 2em;
+        /* Using white text to match other panels */
+        color: white; 
     }
+    /* --- END UPDATED STYLING --- */
+
     .ui-panel {
       background: rgba(40, 40, 40, 0.8);
       color: white;
@@ -69,19 +75,16 @@
       vertical-align: middle;
       padding-left: 5px;
     }
-    /* --- NEW: Styling for citation inside the list --- */
-    #layer-panel .citation-item {
-      list-style-type: none; /* Remove bullet point */
+    #layer-panel .citation {
       margin-top: 10px;
-      padding-left: 5px;
       font-size: 11px;
       font-style: italic;
     }
-    #layer-panel .citation-item a {
+    #layer-panel .citation a {
       color: #93c5fd;
       text-decoration: none;
     }
-     #layer-panel .citation-item a:hover {
+     #layer-panel .citation a:hover {
       text-decoration: underline;
     }
     #legend-panel {
@@ -93,7 +96,6 @@
     #legend-panel.visible {
       display: block;
     }
-    /* --- NEW: Styling for legend subtitle --- */
     .legend-subtitle {
       font-size: 12px;
       font-style: italic;
@@ -158,7 +160,7 @@
       <input type="checkbox" id="chicago-checkbox" value="chicago" checked>
       <label for="chicago-checkbox">Chicago, USA</label>
     </li>
-    <li class="citation-item">
+    <li class="citation">
       Citation & further information: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel impervious surface estimation based on point of interest (POI) data</a>
     </li>
   </ul>
