@@ -43,41 +43,17 @@
 </div>
 
 <script>
-  // --- Create a custom list of base map layers ---
-  const imageryViewModels = [];
-  imageryViewModels.push(new Cesium.ProviderViewModel({
-      name: 'Road Map',
-      tooltip: 'OpenStreetMap',
-      iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/openStreetMap.png'),
-      creationFunction: function() {
-          return new Cesium.OpenStreetMapImageryProvider({
-              url: 'https://a.tile.openstreetmap.org/'
-          });
-      }
-  }));
-  imageryViewModels.push(new Cesium.ProviderViewModel({
-      name: 'Satellite',
-      tooltip: 'Sentinel-2 Imagery',
-      iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/sentinel-2.png'),
-      // --- THIS IS THE FIX ---
-      // We are using a different, more reliable satellite layer provider.
-      creationFunction: async function() {
-          return await Cesium.IonImageryProvider.fromAssetId(3954);
-      }
-  }));
-
-
-  // --- Initialize the Cesium Viewer with the new layer options ---
+  // Initialize the Cesium Viewer with the OpenStreetMap base layer.
   const viewer = new Cesium.Viewer('cesiumContainer', {
-    imageryProviderViewModels: imageryViewModels,
-    selectedImageryProviderViewModel: imageryViewModels[0], // Start with the Road Map selected
-    baseLayerPicker: true, // Show the base layer picker widget
-    // Hide other unnecessary UI elements
+    imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+        url : 'https://a.tile.openstreetmap.org/'
+    }),
     animation: false,
     timeline: false,
     geocoder: false,
     homeButton: false,
     sceneModePicker: false,
+    baseLayerPicker: false,
     navigationHelpButton: false,
   });
 
@@ -99,15 +75,19 @@
   const chicagoLayer = viewer.imageryLayers.addImageryProvider(chicagoProvider);
   const shenzhenLayer = viewer.imageryLayers.addImageryProvider(shenzhenProvider);
 
+  // --- Set the transparency for your layers ---
   chicagoLayer.alpha = 0.7;
   shenzhenLayer.alpha = 0.7;
 
-  // --- Fly the camera to a starting position ---
+  // --- THIS IS THE UPDATED CAMERA VIEW ---
+  // Fly the camera to a starting position over Wuhan.
   viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000), // Lon, Lat, Height
+      // Lon/Lat for Wuhan, Height in meters to see both Beijing and Guangdong
+      destination: Cesium.Cartesian3.fromDegrees(114.3, 30.6, 3500000), 
       orientation: {
           heading: Cesium.Math.toRadians(0.0),
-          pitch: Cesium.Math.toRadians(-45.0),
+          pitch: Cesium.Math.toRadians(-90.0), // -90 degrees is a straight-down view
+          roll: 0.0
       }
   });
 
