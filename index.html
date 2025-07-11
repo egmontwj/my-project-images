@@ -35,7 +35,8 @@
     }
     #layer-panel {
       position: absolute;
-      top: 20px;
+      /* --- CHANGED: Moved panel down --- */
+      top: 95px;
       left: 20px;
       background: rgba(40, 40, 40, 0.8);
       color: white;
@@ -62,6 +63,41 @@
       padding-left: 5px;
       font-size: 13px;
     }
+    /* --- NEW CSS FOR LEGEND PANEL --- */
+    #legend-panel {
+      position: absolute;
+      bottom: 40px;
+      left: 20px;
+      background: rgba(40, 40, 40, 0.8);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-family: sans-serif;
+      z-index: 1000;
+      /* Start hidden */
+      display: none;
+    }
+    #legend-panel.visible {
+      /* This class will be added by JS to show the legend */
+      display: block;
+    }
+    #legend-panel h4 {
+      margin: 0 0 8px 0;
+      text-align: center;
+    }
+    .legend-gradient {
+      width: 150px;
+      height: 20px;
+      /* Gradient matches the GEE color palette */
+      background: linear-gradient(to right, #0000FF, #FFFF00, #FFA500, #FF0000);
+      border-radius: 3px;
+    }
+    .legend-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding-top: 3px;
+    }
   </style>
 </head>
 <body>
@@ -83,6 +119,15 @@
       <label for="chicago-checkbox">Kernel density map of Tweet POI in Chicago, USA</label>
     </li>
   </ul>
+</div>
+
+<div id="legend-panel">
+  <h4>POI Kernel Density</h4>
+  <div class="legend-gradient"></div>
+  <div class="legend-labels">
+    <span>Low</span>
+    <span>High</span>
+  </div>
 </div>
 
 <script>
@@ -130,12 +175,26 @@
 
     chicagoLayer.alpha = 0.7;
     shenzhenLayer.alpha = 0.7;
-    
-    document.getElementById('shenzhen-checkbox').addEventListener('change', function(event) {
+
+    // --- UPDATED JAVASCRIPT FOR LAYER AND LEGEND CONTROL ---
+    const shenzhenCheckbox = document.getElementById('shenzhen-checkbox');
+    const chicagoCheckbox = document.getElementById('chicago-checkbox');
+    const legendPanel = document.getElementById('legend-panel');
+
+    function updateLegendVisibility() {
+      // If either checkbox is checked, show the legend. Otherwise, hide it.
+      if (shenzhenCheckbox.checked || chicagoCheckbox.checked) {
+        legendPanel.classList.add('visible');
+      } else {
+        legendPanel.classList.remove('visible');
+      }
+    }
+
+    shenzhenCheckbox.addEventListener('change', function(event) {
         shenzhenLayer.show = event.target.checked;
         if (event.target.checked) {
             viewer.camera.flyTo({
-                destination: Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000), // Shenzhen
+                destination: Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000),
                 orientation: {
                     heading: Cesium.Math.toRadians(0.0),
                     pitch: Cesium.Math.toRadians(-90.0),
@@ -143,13 +202,14 @@
                 }
             });
         }
+        updateLegendVisibility();
     });
 
-    document.getElementById('chicago-checkbox').addEventListener('change', function(event) {
+    chicagoCheckbox.addEventListener('change', function(event) {
         chicagoLayer.show = event.target.checked;
         if (event.target.checked) {
             viewer.camera.flyTo({
-                destination: Cesium.Cartesian3.fromDegrees(-87.6298, 41.8781, 200000), // Chicago
+                destination: Cesium.Cartesian3.fromDegrees(-87.6298, 41.8781, 200000),
                 orientation: {
                     heading: Cesium.Math.toRadians(0.0),
                     pitch: Cesium.Math.toRadians(-90.0),
@@ -157,11 +217,12 @@
                 }
             });
         }
+        updateLegendVisibility();
     });
 
     const initialCameraFlight = viewer.scene.postRender.addEventListener(function() {
       viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(114.3, 30.6, 3500000), // Wuhan
+        destination: Cesium.Cartesian3.fromDegrees(114.3, 30.6, 3500000),
         orientation: {
           heading: Cesium.Math.toRadians(0.0),
           pitch: Cesium.Math.toRadians(-90.0),
@@ -170,6 +231,9 @@
       });
       initialCameraFlight();
     });
+
+    // Call it once on load to set the initial state
+    updateLegendVisibility();
   }
 </script>
 
