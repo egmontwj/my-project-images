@@ -1,31 +1,135 @@
-/* --- North Arrow --- */
-#northArrow {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 64px;
-  height: 64px;
-  background: url('https://cdn-icons-png.flaticon.com/512/61/61168.png') no-repeat center;
-  background-size: contain;
-  z-index: 1000;
-  transform-origin: center;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wang Jin Research Globe</title>
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.120/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.120/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
 
-/* --- Scale Bar --- */
-#scaleBarContainer {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  font-family: sans-serif;
-  font-size: 12px;
-  color: white;
-  text-align: center;
-}
-#scaleBar {
-  height: 6px;
-  background: white;
-  margin-top: 4px;
-}
+  <style>
+    html, body, #cesiumContainer {
+      width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
+      font-family: sans-serif;
+    }
 
+    #northArrow {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 64px;
+      height: 64px;
+      background: url('https://cdn-icons-png.flaticon.com/512/61/61168.png') no-repeat center;
+      background-size: contain;
+      z-index: 1000;
+      transform-origin: center;
+    }
+
+    #scaleBarContainer {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      font-family: sans-serif;
+      font-size: 12px;
+      color: white;
+      text-align: center;
+    }
+
+    #scaleBar {
+      height: 6px;
+      background: white;
+      margin-top: 4px;
+    }
+
+    .legend {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 10px;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      z-index: 1000;
+      max-width: 200px;
+    }
+  </style>
+</head>
+<body>
+  <div id="cesiumContainer"></div>
+  <div id="northArrow"></div>
+  <div id="scaleBarContainer">
+    <div id="scaleLabel">Scale</div>
+    <div id="scaleBar" style="width: 100px;"></div>
+  </div>
+  <div id="legend" class="legend" style="display: none;">
+    <b>POI Density</b><br>
+    <div style="height:10px; background:#0000FF;"></div>Low<br>
+    <div style="height:10px; background:#FFFF00;"></div><br>
+    <div style="height:10px; background:#FFA500;"></div><br>
+    <div style="height:10px; background:#FF0000;"></div>High
+  </div>
+
+  <script>
+    // Initialize Cesium viewer
+    const viewer = new Cesium.Viewer("cesiumContainer", {
+      terrainProvider: Cesium.createWorldTerrain(),
+      animation: false,
+      timeline: false,
+      sceneModePicker: false,
+      baseLayerPicker: false,
+      geocoder: false,
+    });
+
+    // Replace default base map (Bing) with black globe
+    viewer.scene.imageryLayers.removeAll();
+    viewer.scene.globe.baseColor = Cesium.Color.BLACK;
+
+    // Add your custom tile layers
+    const poiLayer = viewer.scene.imageryLayers.addImageryProvider(
+      new Cesium.UrlTemplateImageryProvider({
+        url: "https://storage.googleapis.com/myearth-465423-bucket/shenzhen_tiles/{z}/{x}/{y}.png",
+        credit: "GEE POI",
+      })
+    );
+
+    // Optional: Zoom to China
+    viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(114.3055, 30.5928, 4000000)
+    });
+
+    // Update legend visibility based on layer
+    function updateLegendVisibility() {
+      document.getElementById("legend").style.display = "block";
+    }
+
+    updateLegendVisibility();
+
+    // NORTH ARROW: Update on camera heading
+    viewer.scene.postRender.addEventListener(() => {
+      const heading = Cesium.Math.toDegrees(viewer.camera.heading);
+      document.getElementById("northArrow").style.transform = `rotate(${-heading}deg)`;
+    });
+
+    // SCALE BAR: Compute real-world width per pixel
+    function updateScaleBar() {
+      const scene = viewer.scene;
+      const camera = scene.camera;
+      const ellipsoid = scene.globe.ellipsoid;
+
+      const canvas = scene.canvas;
+      const center = new Cesium.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2);
+      const left = new Cesium.Cartesian2(canvas.clientWidth / 2 - 100, canvas.clientHeight / 2);
+
+      const rayCenter = camera.getPickRay(center);
+      const rayLeft = camera.getPickRay(left);
+
+      const centerPos = scene.globe.pick(rayCenter, scene);
+      const leftPos = scene.globe.pick(rayLeft, scene);
+
+      if (!centerPos || !leftPos) return;
+
+      const centerCarto = ellipsoid.cartesianToCartographic(centerPos);
+      const leftCarto = ellipsoid.cartesianToCartographic(le
