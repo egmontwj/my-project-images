@@ -33,20 +33,29 @@
         margin: 0;
         font-size: 2em;
     }
+
+    /* --- NEW: Unified styling for all UI panels --- */
+    .ui-panel {
+      background: rgba(40, 40, 40, 0.8);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      z-index: 1000;
+      font-size: 13px;
+    }
+    .panel-title {
+      font-size: 16px; /* Unified title size */
+      font-weight: bold;
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+    /* --- END UNIFIED STYLING --- */
+
     #layer-panel {
       position: absolute;
       top: 95px;
       left: 20px;
-      background: rgba(40, 40, 40, 0.8);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      z-index: 1000;
       width: 350px; 
-    }
-    #layer-panel h3, #layer-panel h4 {
-      margin-top: 0;
-      margin-bottom: 10px;
     }
     #layer-panel ul {
       list-style: none;
@@ -59,25 +68,28 @@
     #layer-panel label {
       vertical-align: middle;
       padding-left: 5px;
-      font-size: 13px;
     }
+    #layer-panel .citation { /* Style for the new citation text */
+      margin-top: 10px;
+      font-size: 11px;
+      font-style: italic;
+    }
+    #layer-panel .citation a {
+      color: #93c5fd;
+      text-decoration: none;
+    }
+     #layer-panel .citation a:hover {
+      text-decoration: underline;
+    }
+
     #legend-panel {
       position: absolute;
       bottom: 40px;
       left: 20px;
-      background: rgba(40, 40, 40, 0.8);
-      color: white;
-      padding: 10px 15px;
-      border-radius: 8px;
-      z-index: 1000;
       display: none;
     }
     #legend-panel.visible {
       display: block;
-    }
-    #legend-panel h4 {
-      margin: 0 0 8px 0;
-      text-align: center;
     }
     .legend-gradient {
       width: 150px;
@@ -91,37 +103,31 @@
       font-size: 12px;
       padding-top: 3px;
     }
-    .top-right-panel {
+
+    #data-panel {
       position: absolute;
       top: 95px;
       right: 20px;
-      background: rgba(40, 40, 40, 0.8);
-      color: white;
-      padding: 10px 15px;
-      border-radius: 8px;
-      z-index: 1000;
-      font-size: 13px;
       text-align: center;
     }
-    .bottom-right-panel {
+    #data-panel #coords-value {
+        min-width: 180px; /* Give space for coordinates to display */
+        display: inline-block;
+    }
+
+    #contact-panel {
       position: absolute;
       bottom: 40px;
       right: 20px;
-      background: rgba(40, 40, 40, 0.8);
-      color: white;
-      padding: 10px 15px;
-      border-radius: 8px;
-      z-index: 1000;
-      font-size: 13px;
     }
-    .bottom-right-panel p {
+    #contact-panel p {
       margin: 5px 0;
     }
-    .bottom-right-panel a {
+    #contact-panel a {
       color: #93c5fd;
       text-decoration: none;
     }
-    .bottom-right-panel a:hover {
+    #contact-panel a:hover {
       text-decoration: underline;
     }
   </style>
@@ -133,8 +139,8 @@
   <h1>ResearchGlobe by Wang Jin</h1>
 </div>
 
-<div id="layer-panel">
-  <h3>Layer Control</h3> 
+<div id="layer-panel" class="ui-panel">
+  <h3 class="panel-title">Layer Control</h3>
   <h4>Kernel density map of geotagged post (2021)</h4>
   <ul>
     <li>
@@ -146,10 +152,13 @@
       <label for="chicago-checkbox">Chicago, USA</label>
     </li>
   </ul>
+  <div class="citation">
+    Citation & further information: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel impervious surface estimation based on point of interest (POI) data</a>
+  </div>
 </div>
 
-<div id="legend-panel">
-  <h4>POI Kernel Density</h4>
+<div id="legend-panel" class="ui-panel">
+  <h3 class="panel-title">Legend</h3>
   <div class="legend-gradient"></div>
   <div class="legend-labels">
     <span>0</span>
@@ -157,12 +166,13 @@
   </div>
 </div>
 
-<div id="data-panel" class="top-right-panel">
-  <strong>Value by Click</strong><br>
+<div id="data-panel" class="ui-panel">
+  <h3 class="panel-title">Value by Click</h3>
   <span id="coords-value">Click on the map</span>
 </div>
 
-<div id="contact-panel" class="bottom-right-panel">
+<div id="contact-panel" class="ui-panel">
+  <h3 class="panel-title">Contact Info</h3>
   <p><strong><a href="http://globalchange.msu.edu/directory/wang-jin-bio.html" target="_blank" rel="noopener noreferrer">Dr. Wang Jin</a></strong></p>
   <p><a href="https://scholar.google.com/citations?user=ogvm4OsAAAAJ&hl=en" target="_blank" rel="noopener noreferrer">Google Scholar</a></p>
   <p>Michigan State University</p>
@@ -275,7 +285,8 @@
             const latDMS = toDMS(latitude, 'lat');
             const lonDMS = toDMS(longitude, 'lon');
             
-            document.getElementById('coords-value').innerHTML = `${latDMS}<br>${lonDMS}`;
+            // UPDATED: Lat and Lon are now on one line, separated by a comma
+            document.getElementById('coords-value').textContent = `${latDMS}, ${lonDMS}`;
         } else {
             document.getElementById('coords-value').textContent = 'No position on globe';
         }
