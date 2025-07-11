@@ -15,6 +15,7 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
+      font-family: sans-serif;
     }
     .info-panel {
         position: absolute;
@@ -27,7 +28,6 @@
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         z-index: 1000;
         text-align: center;
-        font-family: sans-serif;
     }
     .info-panel h1 {
         margin: 0;
@@ -41,7 +41,6 @@
       color: white;
       padding: 10px 20px;
       border-radius: 8px;
-      font-family: sans-serif;
       z-index: 1000;
       width: 350px; 
     }
@@ -70,7 +69,6 @@
       color: white;
       padding: 10px 15px;
       border-radius: 8px;
-      font-family: sans-serif;
       z-index: 1000;
       display: none;
     }
@@ -92,6 +90,39 @@
       justify-content: space-between;
       font-size: 12px;
       padding-top: 3px;
+    }
+    /* --- NEW CSS FOR NEW PANELS --- */
+    .top-right-panel {
+      position: absolute;
+      top: 95px;
+      right: 20px;
+      background: rgba(40, 40, 40, 0.8);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      z-index: 1000;
+      font-size: 13px;
+    }
+    .bottom-right-panel {
+      position: absolute;
+      bottom: 40px;
+      right: 20px;
+      background: rgba(40, 40, 40, 0.8);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      z-index: 1000;
+      font-size: 13px;
+    }
+    .bottom-right-panel p {
+      margin: 5px 0;
+    }
+    .bottom-right-panel a {
+      color: #93c5fd; /* Light blue for links */
+      text-decoration: none;
+    }
+    .bottom-right-panel a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -123,6 +154,20 @@
     <span>0</span>
     <span>13000</span>
   </div>
+</div>
+
+<div id="data-panel" class="top-right-panel">
+  <strong>Clicked Location</strong><br>
+  Lat: <span id="lat-value">N/A</span><br>
+  Lon: <span id="lon-value">N/A</span><br>
+  Value: <span id="density-value">N/A (visual only)</span>
+</div>
+
+<div id="contact-panel" class="bottom-right-panel">
+  <p><strong><a href="http://globalchange.msu.edu/directory/wang-jin-bio.html" target="_blank" rel="noopener noreferrer">Dr. Wang Jin</a></strong></p>
+  <p><a href="https://scholar.google.com/citations?user=ogvm4OsAAAAJ&hl=en" target="_blank" rel="noopener noreferrer">Google Scholar</a></p>
+  <p>Michigan State University</p>
+  <p>wangj329@msu.edu</p>
 </div>
 
 <script>
@@ -159,7 +204,6 @@
         url: shenzhenTileUrl,
         maximumLevel: 13
     });
-
     const chicagoProvider = new Cesium.UrlTemplateImageryProvider({
         url: chicagoTileUrl,
         maximumLevel: 13
@@ -188,11 +232,7 @@
         if (event.target.checked) {
             viewer.camera.flyTo({
                 destination: Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000),
-                orientation: {
-                    heading: Cesium.Math.toRadians(0.0),
-                    pitch: Cesium.Math.toRadians(-90.0),
-                    roll: 0.0
-                }
+                orientation: { heading: Cesium.Math.toRadians(0.0), pitch: Cesium.Math.toRadians(-90.0), roll: 0.0 }
             });
         }
         updateLegendVisibility();
@@ -203,24 +243,34 @@
         if (event.target.checked) {
             viewer.camera.flyTo({
                 destination: Cesium.Cartesian3.fromDegrees(-87.6298, 41.8781, 200000),
-                orientation: {
-                    heading: Cesium.Math.toRadians(0.0),
-                    pitch: Cesium.Math.toRadians(-90.0),
-                    roll: 0.0
-                }
+                orientation: { heading: Cesium.Math.toRadians(0.0), pitch: Cesium.Math.toRadians(-90.0), roll: 0.0 }
             });
         }
         updateLegendVisibility();
     });
+    
+    // --- NEW JAVASCRIPT FOR CLICK HANDLER ---
+    viewer.screenSpaceEventHandler.setInputAction(function(movement) {
+        const cartesian = viewer.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
+        if (cartesian) {
+            const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+            const longitude = Cesium.Math.toDegrees(cartographic.longitude).toFixed(5);
+            const latitude = Cesium.Math.toDegrees(cartographic.latitude).toFixed(5);
+            
+            // Update the Data Value panel
+            document.getElementById('lat-value').textContent = latitude;
+            document.getElementById('lon-value').textContent = longitude;
+        } else {
+            document.getElementById('lat-value').textContent = 'N/A';
+            document.getElementById('lon-value').textContent = 'N/A';
+        }
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    // --- END NEW JAVASCRIPT ---
 
     const initialCameraFlight = viewer.scene.postRender.addEventListener(function() {
       viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(114.3, 30.6, 3500000),
-        orientation: {
-          heading: Cesium.Math.toRadians(0.0),
-          pitch: Cesium.Math.toRadians(-90.0),
-          roll: 0.0
-        }
+        orientation: { heading: Cesium.Math.toRadians(0.0), pitch: Cesium.Math.toRadians(-90.0), roll: 0.0 }
       });
       initialCameraFlight();
     });
