@@ -47,7 +47,6 @@
       margin-top: 0;
       margin-bottom: 10px;
     }
-
     #layer-panel {
       position: absolute;
       top: 95px;
@@ -70,24 +69,21 @@
       vertical-align: middle;
       padding-left: 5px;
     }
-    /* --- NEW/UPDATED CSS FOR CITATION --- */
-    #layer-panel li.citation-item {
+    /* --- NEW: Styling for citation inside the list --- */
+    #layer-panel .citation-item {
       list-style-type: none; /* Remove bullet point */
-      padding-top: 8px; /* Add space above citation */
-    }
-    #layer-panel .citation {
+      margin-top: 10px;
+      padding-left: 5px;
       font-size: 11px;
       font-style: italic;
-      line-height: 1.3; /* Improve readability */
     }
-    #layer-panel .citation a {
+    #layer-panel .citation-item a {
       color: #93c5fd;
       text-decoration: none;
     }
-     #layer-panel .citation a:hover {
+     #layer-panel .citation-item a:hover {
       text-decoration: underline;
     }
-
     #legend-panel {
       position: absolute;
       bottom: 40px;
@@ -96,6 +92,13 @@
     }
     #legend-panel.visible {
       display: block;
+    }
+    /* --- NEW: Styling for legend subtitle --- */
+    .legend-subtitle {
+      font-size: 12px;
+      font-style: italic;
+      text-align: center;
+      margin: -8px 0 8px 0;
     }
     .legend-gradient {
       width: 150px;
@@ -109,7 +112,6 @@
       font-size: 12px;
       padding-top: 3px;
     }
-
     #data-panel {
       position: absolute;
       top: 95px;
@@ -120,7 +122,6 @@
         min-width: 180px;
         display: inline-block;
     }
-
     #contact-panel {
       position: absolute;
       bottom: 40px;
@@ -158,15 +159,14 @@
       <label for="chicago-checkbox">Chicago, USA</label>
     </li>
     <li class="citation-item">
-      <div class="citation">
-        Citation & further information: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel impervious surface estimation based on point of interest (POI) data</a>
-      </div>
+      Citation & further information: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel impervious surface estimation based on point of interest (POI) data</a>
     </li>
   </ul>
 </div>
 
 <div id="legend-panel" class="ui-panel">
-  <h3 class="panel-title">POI Kernel Density</h3>
+  <h3 class="panel-title">Legend</h3>
+  <h4 class="legend-subtitle">POI Kernel Density</h4>
   <div class="legend-gradient"></div>
   <div class="legend-labels">
     <span>0</span>
