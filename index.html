@@ -9,7 +9,7 @@
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 
   <style>
-    /* All CSS is the same as your working version... */
+    /* All CSS is the same as the last working version... */
     html, body, #cesiumContainer { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; }
     .info-panel { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(40, 40, 40, 0.8); color: white; padding: 10px 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000; text-align: center; }
     .info-panel h1 { margin: 0; font-size: 2em; color: white; }
@@ -23,9 +23,8 @@
     #layer-panel .citation { margin-top: 10px; font-size: 11px; font-style: italic; }
     #layer-panel .citation a { color: #93c5fd; text-decoration: none; }
     #layer-panel .citation a:hover { text-decoration: underline; }
-    /* Updated to class for multiple legends */
-    .legend-panel { position: absolute; bottom: 40px; left: 20px; display: none; }
-    .legend-panel.visible { display: block; }
+    #legend-panel-poi, #legend-panel-imp { position: absolute; bottom: 40px; left: 20px; display: none; }
+    #legend-panel-poi.visible, #legend-panel-imp.visible { display: block; }
     .legend-subtitle { font-size: 12px; font-style: italic; text-align: center; margin: -8px 0 8px 0; }
     .legend-gradient { width: 150px; height: 20px; border-radius: 3px; }
     .legend-labels { display: flex; justify-content: space-between; font-size: 12px; padding-top: 3px; }
@@ -58,7 +57,7 @@
       <label for="chicago-poi-checkbox">Chicago, USA</label>
     </li>
     <li class="citation">
-      Citation & further information: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel impervious surface estimation...</a>
+      Citation: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel impervious surface estimation...</a>
     </li>
   </ul>
   <hr> 
@@ -103,9 +102,11 @@
   </div>
 </div>
 
+
 <div id="data-panel" class="ui-panel">
   <h3 class="panel-title">Value by Click</h3>
-  <span id="coords-value">Click on the map</span>
+  <span id="coords-value">Click on the map</span><br>
+  Value: <span id="attribute-value">N/A (visual only)</span>
 </div>
 
 <div id="contact-panel" class="ui-panel">
@@ -116,128 +117,107 @@
   <p>wangj329@msu.edu</p>
 </div>
 
-
 <script>
   let viewer;
   try {
     viewer = new Cesium.Viewer('cesiumContainer', {
-      imageryProvider: new Cesium.OpenStreetMapImageryProvider({
-          url : 'https://a.tile.openstreetmap.org/'
-      }),
+      imageryProvider: new Cesium.OpenStreetMapImageryProvider({ url : 'https://a.tile.openstreetmap.org/' }),
       animation: false, timeline: false, geocoder: false, homeButton: false, sceneModePicker: false, baseLayerPicker: false, navigationHelpButton: false,
     });
-  } catch (error) {
-    console.error("ERROR creating viewer:", error);
-  }
+  } catch (error) { console.error("ERROR creating viewer:", error); }
 
   if (viewer) {
-    // This is the redundant line from your working version. We will keep it.
-    viewer.imageryLayers.addImageryProvider(
-      new Cesium.OpenStreetMapImageryProvider({
-        url: 'https://a.tile.openstreetmap.org/'
-      })
-    );
-
     const bucketName = 'myearth-465423-bucket';
 
     function addRasterLayer(path) {
-        return viewer.imageryLayers.addImageryProvider(
-            new Cesium.UrlTemplateImageryProvider({
-                url: `https://storage.googleapis.com/${bucketName}/${path}/{z}/{x}/{y}.png`,
-                maximumLevel: 13
-            })
-        );
+      const provider = new Cesium.UrlTemplateImageryProvider({
+          url: `https://storage.googleapis.com/${bucketName}/${path}/{z}/{x}/{y}.png`,
+          maximumLevel: 13
+      });
+      return viewer.imageryLayers.add(provider);
     }
     
-    // --- Load the initial POI layers ---
+    // --- Load only the initial POI layers here ---
     const poiShenzhenLayer = addRasterLayer('shenzhen_tiles');
     const poiChicagoLayer = addRasterLayer('chicago_tiles');
     poiShenzhenLayer.alpha = 0.7;
     poiChicagoLayer.alpha = 0.7;
     
-    // --- Setup for Checkboxes ---
+    // --- Setup for Checkboxes that are always present ---
     const shenzhenLocation = Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000);
     const chicagoLocation = Cesium.Cartesian3.fromDegrees(-87.6298, 41.8781, 200000);
-
     const poiCheckboxes = [document.getElementById('shenzhen-poi-checkbox'), document.getElementById('chicago-poi-checkbox')];
-    poiCheckboxes[0].addEventListener('change', (e) => {
-        poiShenzhenLayer.show = e.target.checked;
-        if(e.target.checked) viewer.camera.flyTo({destination: shenzhenLocation});
-        updateLegends();
-    });
-    poiCheckboxes[1].addEventListener('change', (e) => {
-        poiChicagoLayer.show = e.target.checked;
-        if(e.target.checked) viewer.camera.flyTo({destination: chicagoLocation});
-        updateLegends();
-    });
-
-    // --- Logic for all legends ---
     const impCheckboxes = [document.getElementById('sz-cart-checkbox'), document.getElementById('sz-cnn-checkbox'), document.getElementById('chicago-cart-checkbox'), document.getElementById('chicago-cnn-checkbox')];
+
+    function setupCheckbox(checkbox, layer, flyToLocation) {
+        checkbox.addEventListener('change', function(event) {
+            layer.show = event.target.checked;
+            if (event.target.checked && flyToLocation) {
+                viewer.camera.flyTo({
+                    destination: flyToLocation,
+                    orientation: { heading: Cesium.Math.toRadians(0.0), pitch: Cesium.Math.toRadians(-90.0), roll: 0.0 }
+                });
+            }
+            updateLegends();
+        });
+    }
+
+    // Setup the POI checkboxes immediately
+    setupCheckbox(poiCheckboxes[0], poiShenzhenLayer, shenzhenLocation);
+    setupCheckbox(poiCheckboxes[1], poiChicagoLayer, chicagoLocation);
+
     function updateLegends() {
         document.getElementById('legend-panel-poi').style.display = poiCheckboxes.some(cb => cb.checked) ? 'block' : 'none';
         document.getElementById('legend-panel-imp').style.display = impCheckboxes.some(cb => cb.checked) ? 'block' : 'none';
     }
-
-    // --- Click handler ---
+    
+    // --- Click handler, Legend setup, and Initial Flight are here ---
     viewer.screenSpaceEventHandler.setInputAction(function(movement) {
+        // This logic remains the same
+        const coordsSpan = document.getElementById('coords-value');
         const cartesian = viewer.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
         if (cartesian) {
             const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
             const longitude = Cesium.Math.toDegrees(cartographic.longitude).toFixed(5);
             const latitude = Cesium.Math.toDegrees(cartographic.latitude).toFixed(5);
-            document.getElementById('coords-value').textContent = `Lat: ${latitude}, Lon: ${longitude}`;
+            coordsSpan.textContent = `Lat: ${latitude}, Lon: ${longitude}`;
         } else {
-            document.getElementById('coords-value').textContent = 'No position on globe';
+            coordsSpan.textContent = 'No position on globe';
         }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-    // --- Run setup after the first frame renders to prevent errors ---
-    const initialSetup = viewer.scene.postRender.addEventListener(function() {
-      // --- Load the Impervious Layers here ---
-      const impSzCartLayer = addRasterLayer('imp_shenzhen_cart_tiles');
-      const impSzCnnLayer = addRasterLayer('imp_shenzhen_cnn_tiles');
-      const impChicagoCartLayer = addRasterLayer('imp_chicago_cart_tiles');
-      const impChicagoCnnLayer = addRasterLayer('imp_chicago_cnn_tiles');
+    const initialCameraFlight = viewer.scene.postRender.addEventListener(function() {
+        // --- THIS IS THE FIX: Load and set up the new layers AFTER the first render ---
+        
+        // Load the 4 new impervious layers
+        const impSzCartLayer = addRasterLayer('imp_shenzhen_cart_tiles');
+        const impSzCnnLayer = addRasterLayer('imp_shenzhen_cnn_tiles');
+        const impChicagoCartLayer = addRasterLayer('imp_chicago_cart_tiles');
+        const impChicagoCnnLayer = addRasterLayer('imp_chicago_cnn_tiles');
+        
+        // Set their initial state
+        impSzCartLayer.show = false; impSzCartLayer.alpha = 0.8;
+        impSzCnnLayer.show = false; impSzCnnLayer.alpha = 0.8;
+        impChicagoCartLayer.show = false; impChicagoCartLayer.alpha = 0.8;
+        impChicagoCnnLayer.show = false; impChicagoCnnLayer.alpha = 0.8;
 
-      // Set initial state for new layers
-      impSzCartLayer.show = false; impSzCartLayer.alpha = 0.8;
-      impSzCnnLayer.show = false; impSzCnnLayer.alpha = 0.8;
-      impChicagoCartLayer.show = false; impChicagoCartLayer.alpha = 0.8;
-      impChicagoCnnLayer.show = false; impChicagoCnnLayer.alpha = 0.8;
+        // NOW that the layers exist, set up their checkboxes
+        setupCheckbox(impCheckboxes[0], impSzCartLayer, shenzhenLocation);
+        setupCheckbox(impCheckboxes[1], impSzCnnLayer, shenzhenLocation);
+        setupCheckbox(impCheckboxes[2], impChicagoCartLayer, chicagoLocation);
+        setupCheckbox(impCheckboxes[3], impChicagoCnnLayer, chicagoLocation);
 
-      // --- Setup checkboxes for the new layers ---
-      impCheckboxes[0].addEventListener('change', (e) => {
-          impSzCartLayer.show = e.target.checked;
-          if(e.target.checked) viewer.camera.flyTo({destination: shenzhenLocation});
-          updateLegends();
-      });
-      impCheckboxes[1].addEventListener('change', (e) => {
-          impSzCnnLayer.show = e.target.checked;
-          if(e.target.checked) viewer.camera.flyTo({destination: shenzhenLocation});
-          updateLegends();
-      });
-      impCheckboxes[2].addEventListener('change', (e) => {
-          impChicagoCartLayer.show = e.target.checked;
-          if(e.target.checked) viewer.camera.flyTo({destination: chicagoLocation});
-          updateLegends();
-      });
-      impCheckboxes[3].addEventListener('change', (e) => {
-          impChicagoCnnLayer.show = e.target.checked;
-          if(e.target.checked) viewer.camera.flyTo({destination: chicagoLocation});
-          updateLegends();
-      });
-      
-      // Fly to initial position
-      viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(114.3, 30.6, 3500000),
-        orientation: { heading: Cesium.Math.toRadians(0.0), pitch: Cesium.Math.toRadians(-90.0), roll: 0.0 }
-      });
-      
-      // Remove this listener so it only runs once
-      initialSetup();
+        // Fly to the initial view
+        viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(114.3, 30.6, 3500000),
+            orientation: { heading: Cesium.Math.toRadians(0.0), pitch: Cesium.Math.toRadians(-90.0), roll: 0.0 }
+        });
+        
+        // Remove this listener so it only runs once
+        initialCameraFlight();
     });
 
-    updateLegends();
+    updateLegends(); // Set initial legend visibility
   }
 </script>
 
