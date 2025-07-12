@@ -9,51 +9,18 @@
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 
   <style>
-    html, body, #cesiumContainer {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      font-family: sans-serif;
-    }
-    .info-panel {
-        position: absolute;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: rgba(40, 40, 40, 0.8);
-        color: white;
-        padding: 10px 25px;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        z-index: 1000;
-        text-align: center;
-    }
-    .info-panel h1 {
-        margin: 0;
-        font-size: 2em;
-        color: white;
-    }
-    .ui-panel {
-      background: rgba(40, 40, 40, 0.8);
-      color: white;
-      padding: 10px 15px;
-      border-radius: 8px;
-      z-index: 1000;
-      font-size: 13px;
-    }
-    .panel-title {
-      font-size: 16px;
-      font-weight: bold;
-      margin-top: 0;
-      margin-bottom: 10px;
-    }
+    /* All CSS is the same */
+    html, body, #cesiumContainer { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; }
+    .info-panel { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(40, 40, 40, 0.8); color: white; padding: 10px 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000; text-align: center; }
+    .info-panel h1 { margin: 0; font-size: 2em; color: white; }
+    .ui-panel { background: rgba(40, 40, 40, 0.8); color: white; padding: 10px 15px; border-radius: 8px; z-index: 1000; font-size: 13px; }
+    .panel-title { font-size: 16px; font-weight: bold; margin-top: 0; margin-bottom: 10px; }
     #layer-panel {
       position: absolute;
       top: 95px;
       left: 20px;
-      width: 350px; 
+      /* Adjusted width for better text alignment */
+      width: 320px; 
     }
     #layer-panel h4 {
       margin-top: 15px;
@@ -71,74 +38,36 @@
       vertical-align: middle;
       padding-left: 5px;
     }
+    /* UPDATED: CSS for citation formatting */
     #layer-panel .citation {
       margin-top: 10px;
       font-size: 11px;
       font-style: italic;
+      line-height: 1.4; /* Improves readability of wrapped text */
+      text-align: justify; /* Justify alignment */
     }
     #layer-panel .citation a {
       color: #93c5fd;
       text-decoration: none;
     }
-     #layer-panel .citation a:hover {
+    #layer-panel .citation a:hover {
       text-decoration: underline;
     }
-    .legend-panel {
-      position: absolute;
-      bottom: 40px;
-      left: 20px;
-      display: none;
-    }
-    .legend-panel.visible {
-      display: block;
-    }
-    .legend-subtitle {
-      font-size: 12px;
-      font-style: italic;
-      text-align: center;
-      margin: -8px 0 8px 0;
-    }
-    .legend-gradient {
-      width: 150px;
-      height: 20px;
-      border-radius: 3px;
-    }
-    .legend-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      padding-top: 3px;
-    }
-    #data-panel {
-      position: absolute;
-      top: 95px;
-      right: 20px;
-      text-align: center;
-    }
-    #data-panel #coords-value {
-        min-width: 180px;
-        display: inline-block;
-    }
-    #contact-panel {
-      position: absolute;
-      bottom: 40px;
-      right: 20px;
-    }
-    #contact-panel p {
-      margin: 5px 0;
-    }
-    #contact-panel a {
-      color: #93c5fd;
-      text-decoration: none;
-    }
-    #contact-panel a:hover {
-      text-decoration: underline;
-    }
+    .legend-panel { position: absolute; bottom: 40px; left: 20px; display: none; }
+    .legend-panel.visible { display: block; }
+    .legend-subtitle { font-size: 12px; font-style: italic; text-align: center; margin: -8px 0 8px 0; }
+    .legend-gradient { width: 150px; height: 20px; border-radius: 3px; }
+    .legend-labels { display: flex; justify-content: space-between; font-size: 12px; padding-top: 3px; }
+    #data-panel { position: absolute; top: 95px; right: 20px; text-align: center; }
+    #data-panel #coords-value { min-width: 180px; display: inline-block; }
+    #contact-panel { position: absolute; bottom: 40px; right: 20px; }
+    #contact-panel p { margin: 5px 0; }
+    #contact-panel a { color: #93c5fd; text-decoration: none; }
+    #contact-panel a:hover { text-decoration: underline; }
     hr { 
-      border: 0;
-      height: 1px;
-      background: rgba(128, 128, 128, 0.5);
-      margin: 15px 0;
+      border-color: rgba(128, 128, 128, 0.5); 
+      /* Adjusted margin for new position */
+      margin: 15px 0 10px 0;
     }
   </style>
 </head>
@@ -151,9 +80,7 @@
 
 <div id="layer-panel" class="ui-panel">
   <h3 class="panel-title">Layer Control</h3>
-  <hr style="margin-top: -5px; margin-bottom: 15px;">
-
-  <h4>Kernel density map of geotagged post (2021)</h4>
+  <hr> <h4>Kernel density map of geotagged post (2021)</h4>
   <ul>
     <li>
       <input type="checkbox" id="shenzhen-poi-checkbox" checked>
@@ -175,8 +102,8 @@
       <input type="checkbox" id="chicago-cart-checkbox">
       <label for="chicago-cart-checkbox">Chicago, USA</label>
     </li>
-    <li class="citation">
-      Citation & further information: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel<br>impervious surface estimation based on point of interest (POI) data</a>
+     <li class="citation">
+      Citation & further information: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel impervious surface estimation based on point of interest (POI) data</a>
     </li>
   </ul>
 </div>
@@ -226,7 +153,6 @@
   } catch (error) { console.error("ERROR creating viewer:", error); }
 
   if (viewer) {
-    // This is the redundant line from the stable version.
     viewer.imageryLayers.addImageryProvider(
       new Cesium.OpenStreetMapImageryProvider({
         url: 'https://a.tile.openstreetmap.org/'
@@ -249,7 +175,6 @@
     const impSzCartLayer = addRasterLayer('imp_shenzhen_cart_tiles');
     const impChicagoCartLayer = addRasterLayer('imp_chicago_cart_tiles');
 
-    // Set initial visibility
     poiShenzhenLayer.alpha = 0.7;
     poiChicagoLayer.alpha = 0.7;
     impSzCartLayer.show = false; impSzCartLayer.alpha = 0.8;
