@@ -1,111 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ResearchGlobe by Wang Jin</title>
+// --- Load all four FeatureCollection assets ---
+var chicagoCART = ee.FeatureCollection('projects/myearth-465423/assets/ChicagoCART');
+var chicagoCNN = ee.FeatureCollection('projects/myearth-465423/assets/ChicagoCNN');
+var shenzhenCART = ee.FeatureCollection('projects/myearth-465423/assets/SZ_CART');
+var shenzhenCNN = ee.FeatureCollection('projects/myearth-465423/assets/SZ_CNN');
 
-  <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
-  <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+// --- Visualization parameters for Impervious Surfaces ---
+var imperviousGradientVis = {
+  min: 1001,
+  max: 10000,
+  palette: ['#00008B', '#00FFFF', '#FFFF00', '#FFA500', '#FF0000']
+};
 
-  <style>
-    html, body, #cesiumContainer { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; }
-    .info-panel { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(40, 40, 40, 0.8); color: white; padding: 10px 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000; text-align: center; }
-    .info-panel h1 { margin: 0; font-size: 2em; color: white; }
-    .ui-panel { background: rgba(40, 40, 40, 0.8); color: white; padding: 10px 15px; border-radius: 8px; z-index: 1000; font-size: 13px; }
-    .panel-title { font-size: 16px; font-weight: bold; margin-top: 0; margin-bottom: 10px; }
-    #layer-panel { position: absolute; top: 95px; left: 20px; width: 350px; }
-    #layer-panel h4 { margin-top: 0; margin-bottom: 10px; }
-    #layer-panel ul { list-style: none; margin: 0; padding-left: 15px; }
-    #layer-panel li { margin-bottom: 5px; }
-    #layer-panel label { vertical-align: middle; padding-left: 5px; }
-    #layer-panel .citation { margin-top: 10px; font-size: 11px; font-style: italic; }
-    #layer-panel .citation a { color: #93c5fd; text-decoration: none; }
-    #layer-panel .citation a:hover { text-decoration: underline; }
-    #legend-panel-poi, #legend-panel-imp { position: absolute; bottom: 40px; left: 20px; display: none; }
-    #legend-panel-poi.visible, #legend-panel-imp.visible { display: block; }
-    .legend-subtitle { font-size: 12px; font-style: italic; text-align: center; margin: -8px 0 8px 0; }
-    .legend-gradient { width: 150px; height: 20px; border-radius: 3px; }
-    .legend-labels { display: flex; justify-content: space-between; font-size: 12px; padding-top: 3px; }
-    #data-panel { position: absolute; top: 95px; right: 20px; text-align: center; }
-    #data-panel #coords-value { min-width: 180px; display: inline-block; }
-    #contact-panel { position: absolute; bottom: 40px; right: 20px; }
-    #contact-panel p { margin: 5px 0; }
-    #contact-panel a { color: #93c5fd; text-decoration: none; }
-    #contact-panel a:hover { text-decoration: underline; }
-    hr { border-color: rgba(128, 128, 128, 0.5); margin: 15px 0; }
-  </style>
-</head>
-<body>
+var imperviousBlackVis = {
+  min: 0,
+  max: 1000,
+  palette: ['#000000']
+};
 
-<div id="cesiumContainer"></div>
-<div class="info-panel">
-  <h1>ResearchGlobe by Wang Jin</h1>
-</div>
+// --- Helper function to convert, visualize, and export ---
+function exportImperviousTiles(collection, propertyName, description, pathName, region) {
+  var empty = ee.Image().byte();
+  var numericRaster = empty.paint({ featureCollection: collection, color: propertyName });
+  
+  var below1000 = numericRaster.updateMask(numericRaster.lte(1000)).visualize(imperviousBlackVis);
+  var above1000 = numericRaster.updateMask(numericRaster.gt(1000)).visualize(imperviousGradientVis);
+  
+  var finalVisualizedImage = ee.ImageCollection([below1000, above1000]).mosaic();
 
-<div id="layer-panel" class="ui-panel">
-  <h3 class="panel-title">Layer Control</h3>
-  <h4>Kernel density map of geotagged post (2021)</h4>
-  <ul>
-    <li>
-      <input type="checkbox" id="shenzhen-poi-checkbox" checked>
-      <label for="shenzhen-poi-checkbox">Shenzhen, China</label>
-    </li>
-    <li>
-      <input type="checkbox" id="chicago-poi-checkbox" checked>
-      <label for="chicago-poi-checkbox">Chicago, USA</label>
-    </li>
-    <li class="citation">
-      Citation: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel impervious surface estimation...</a>
-    </li>
-  </ul>
-  <hr> 
-  <h4>Impervious Density</h4>
-  <ul>
-    <li>
-      <input type="checkbox" id="sz-cart-checkbox">
-      <label for="sz-cart-checkbox">Shenzhen Impervious Density by CART</label>
-    </li>
-     <li>
-      <input type="checkbox" id="sz-cnn-checkbox">
-      <label for="sz-cnn-checkbox">Shenzhen Impervious Density by CNN</label>
-    </li>
-    <li>
-      <input type="checkbox" id="chicago-cart-checkbox">
-      <label for="chicago-cart-checkbox">Chicago Impervious Density by CART</label>
-    </li>
-    <li>
-      <input type="checkbox" id="chicago-cnn-checkbox">
-      <label for="chicago-cnn-checkbox">Chicago Impervious Density by CNN</label>
-    </li>
-  </ul>
-</div>
+  Export.map.toCloudStorage({
+    image: finalVisualizedImage,
+    description: description,
+    bucket: 'myearth-465423-bucket',
+    path: pathName,
+    maxZoom: 13,
+    region: region.bounds() 
+  });
+}
 
-<div id="legend-panel-poi" class="legend-panel ui-panel">
-  <h3 class="panel-title">Legend</h3>
-  <h4 class="legend-subtitle">POI Kernel Density</h4>
-  <div class="legend-gradient" style="background: linear-gradient(to right, #0000FF, #FFFF00, #FFA500, #FF0000);"></div>
-  <div class="legend-labels">
-    <span>0</span>
-    <span>13000</span>
-  </div>
-</div>
-
-<div id="legend-panel-imp" class="legend-panel ui-panel" style="bottom: 160px;">
-  <h3 class="panel-title">Legend</h3>
-  <h4 class="legend-subtitle">Impervious Density</h4>
-  <div class="legend-gradient" style="background: linear-gradient(to right, #000000, #00008B, #00FFFF, #FFFF00, #FFA500, #FF0000);"></div>
-  <div class="legend-labels">
-    <span>0</span>
-    <span>10000</span>
-  </div>
-</div>
-
-<div id="data-panel" class="ui-panel">
-  <h3 class="panel-title">Value by Click</h3>
-  <span id="coords-value">Click on the map</span>
-</div>
-
-<div id="contact-panel" class="ui-panel">
-  <h3 class="panel-title">Contact Info</h3>
-  <p><strong><a href
+// --- Run the function for all four impervious layers ---
+exportImperviousTiles(chicagoCART, 'ImpPOI1w', 'Export_Imp_Chicago_CART_Tiles', 'imp_chicago_cart_tiles', chicagoCART.geometry());
+exportImperviousTiles(chicagoCNN, 'ImpAdjuste', 'Export_Imp_Chicago_CNN_Tiles', 'imp_chicago_cnn_tiles', chicagoCNN.geometry());
+exportImperviousTiles(shenzhenCART, 'ImpPOI10k', 'Export_Imp_Shenzhen_CART_Tiles', 'imp_shenzhen_cart_tiles', shenzhenCART.geometry());
+exportImperviousTiles(shenzhenCNN, 'szImpPOI1w', 'Export_Imp_Shenzhen_CNN_Tiles', 'imp_shenzhen_cnn_tiles', shenzhenCNN.geometry());
