@@ -34,6 +34,7 @@
     #contact-panel p { margin: 5px 0; }
     #contact-panel a { color: #93c5fd; text-decoration: none; }
     #contact-panel a:hover { text-decoration: underline; }
+    hr { border-color: rgba(128, 128, 128, 0.5); margin: 15px 0 10px 0; }
   </style>
 </head>
 <body>
@@ -45,7 +46,8 @@
 
 <div id="layer-panel" class="ui-panel">
   <h3 class="panel-title">Layer Control</h3>
-
+  <hr style="margin-top:-5px;">
+  
   <h4>Kernel density map of geotagged post (2021)</h4>
   <ul>
     <li>
@@ -69,7 +71,7 @@
       <label for="chicago-cart-checkbox">Chicago, USA</label>
     </li>
      <li class="citation">
-      Citation & further information: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel<br>impervious surface estimation...</a>
+      Citation & further information: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel impervious surface estimation based on point of interest (POI) data</a>
     </li>
   </ul>
 </div>
@@ -127,10 +129,9 @@
       })
     );
     
-    // --- All JavaScript after this point is based on the stable version you provided ---
+    // The rest of the JavaScript is the same as the last working version
     const bucketName = 'myearth-465423-bucket';
 
-    // Helper function to add raster layers
     function addRasterLayer(path) {
         return viewer.imageryLayers.addImageryProvider(
             new Cesium.UrlTemplateImageryProvider({
@@ -142,21 +143,17 @@
     
     const poiShenzhenLayer = addRasterLayer('shenzhen_tiles');
     const poiChicagoLayer = addRasterLayer('chicago_tiles');
-    // We only create the layers we will actually use now
     const impSzCartLayer = addRasterLayer('imp_shenzhen_cart_tiles');
     const impChicagoCartLayer = addRasterLayer('imp_chicago_cart_tiles');
 
-    // Set initial visibility
     poiShenzhenLayer.alpha = 0.7;
     poiChicagoLayer.alpha = 0.7;
     impSzCartLayer.show = false; impSzCartLayer.alpha = 0.8;
     impChicagoCartLayer.show = false; impChicagoCartLayer.alpha = 0.8;
     
-    // --- Setup checkboxes ---
     const shenzhenLocation = Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000);
     const chicagoLocation = Cesium.Cartesian3.fromDegrees(-87.6298, 41.8781, 200000);
     const poiCheckboxes = [document.getElementById('shenzhen-poi-checkbox'), document.getElementById('chicago-poi-checkbox')];
-    // UPDATED: Only reference the two checkboxes that exist in the HTML
     const impCheckboxes = [document.getElementById('sz-cart-checkbox'), document.getElementById('chicago-cart-checkbox')];
 
     function setupCheckbox(checkbox, layer, flyToLocation) {
