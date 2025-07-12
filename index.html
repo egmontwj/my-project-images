@@ -16,7 +16,7 @@
     .ui-panel { background: rgba(40, 40, 40, 0.8); color: white; padding: 10px 15px; border-radius: 8px; z-index: 1000; font-size: 13px; }
     .panel-title { font-size: 16px; font-weight: bold; margin-top: 0; margin-bottom: 10px; }
     #layer-panel { position: absolute; top: 95px; left: 20px; width: 350px; }
-    #layer-panel h4 { margin-top: 0; margin-bottom: 10px; }
+    #layer-panel h4 { margin-top: 15px; margin-bottom: 10px; }
     #layer-panel ul { list-style: none; margin: 0; padding-left: 15px; }
     #layer-panel li { margin-bottom: 5px; }
     #layer-panel label { vertical-align: middle; padding-left: 5px; }
@@ -34,7 +34,6 @@
     #contact-panel p { margin: 5px 0; }
     #contact-panel a { color: #93c5fd; text-decoration: none; }
     #contact-panel a:hover { text-decoration: underline; }
-    hr { border-color: rgba(128, 128, 128, 0.5); margin: 15px 0; }
   </style>
 </head>
 <body>
@@ -46,6 +45,7 @@
 
 <div id="layer-panel" class="ui-panel">
   <h3 class="panel-title">Layer Control</h3>
+
   <h4>Kernel density map of geotagged post (2021)</h4>
   <ul>
     <li>
@@ -56,28 +56,20 @@
       <input type="checkbox" id="chicago-poi-checkbox" checked>
       <label for="chicago-poi-checkbox">Chicago, USA</label>
     </li>
-    <li class="citation">
-      Citation & further information: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel impervious surface estimation...</a>
-    </li>
   </ul>
-  <hr> 
-  <h4>Impervious Density</h4>
+ 
+  <h4>Impervious Density Map (2021)</h4>
   <ul>
     <li>
       <input type="checkbox" id="sz-cart-checkbox">
-      <label for="sz-cart-checkbox">Shenzhen Impervious Density by CART</label>
-    </li>
-     <li>
-      <input type="checkbox" id="sz-cnn-checkbox">
-      <label for="sz-cnn-checkbox">Shenzhen Impervious Density by CNN</label>
+      <label for="sz-cart-checkbox">Shenzhen, China</label>
     </li>
     <li>
       <input type="checkbox" id="chicago-cart-checkbox">
-      <label for="chicago-cart-checkbox">Chicago Impervious Density by CART</label>
+      <label for="chicago-cart-checkbox">Chicago, USA</label>
     </li>
-    <li>
-      <input type="checkbox" id="chicago-cnn-checkbox">
-      <label for="chicago-cnn-checkbox">Chicago Impervious Density by CNN</label>
+     <li class="citation">
+      Citation & further information: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel<br>impervious surface estimation...</a>
     </li>
   </ul>
 </div>
@@ -98,7 +90,7 @@
   <div class="legend-gradient" style="background: linear-gradient(to right, #000000, #00008B, #00FFFF, #FFFF00, #FFA500, #FF0000);"></div>
   <div class="legend-labels">
     <span>0</span>
-    <span>10000</span>
+    <span>1.0</span>
   </div>
 </div>
 
@@ -120,57 +112,52 @@
   let viewer;
   try {
     viewer = new Cesium.Viewer('cesiumContainer', {
-      imageryProvider: new Cesium.OpenStreetMapImageryProvider({ url : 'https://a.tile.openstreetmap.org/' }),
+      imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+          url : 'https://a.tile.openstreetmap.org/'
+      }),
       animation: false, timeline: false, geocoder: false, homeButton: false, sceneModePicker: false, baseLayerPicker: false, navigationHelpButton: false,
     });
   } catch (error) { console.error("ERROR creating viewer:", error); }
 
   if (viewer) {
-    // --- THIS IS THE FIX ---
-    // Re-adding the line that stabilizes the base map in your environment.
+    // This is the redundant line from your working version. We will keep it.
     viewer.imageryLayers.addImageryProvider(
       new Cesium.OpenStreetMapImageryProvider({
         url: 'https://a.tile.openstreetmap.org/'
       })
     );
-
-    // --- Define the precise bounding boxes ---
-    const shenzhenRectangle = Cesium.Rectangle.fromDegrees(113.96589986581823, 22.483607814811478, 114.11485075871127, 22.621958407360754);
-    const chicagoRectangle = Cesium.Rectangle.fromDegrees(-87.77882831051319, 41.83091448344418, -87.59619153435915, 41.96736213704779);
     
+    // --- All JavaScript after this point is based on the stable version you provided ---
     const bucketName = 'myearth-465423-bucket';
 
-    function addRasterLayer(path, rectangle) {
+    // Helper function to add raster layers
+    function addRasterLayer(path) {
         return viewer.imageryLayers.addImageryProvider(
             new Cesium.UrlTemplateImageryProvider({
                 url: `https://storage.googleapis.com/${bucketName}/${path}/{z}/{x}/{y}.png`,
-                rectangle: rectangle,
-                minimumLevel: 10,
                 maximumLevel: 13
             })
         );
     }
     
-    // Load all 6 layers
-    const poiShenzhenLayer = addRasterLayer('shenzhen_tiles', shenzhenRectangle);
-    const poiChicagoLayer = addRasterLayer('chicago_tiles', chicagoRectangle);
-    const impSzCartLayer = addRasterLayer('imp_shenzhen_cart_tiles', shenzhenRectangle);
-    const impSzCnnLayer = addRasterLayer('imp_shenzhen_cnn_tiles', shenzhenRectangle);
-    const impChicagoCartLayer = addRasterLayer('imp_chicago_cart_tiles', chicagoRectangle);
-    const impChicagoCnnLayer = addRasterLayer('imp_chicago_cnn_tiles', chicagoRectangle);
+    const poiShenzhenLayer = addRasterLayer('shenzhen_tiles');
+    const poiChicagoLayer = addRasterLayer('chicago_tiles');
+    // We only create the layers we will actually use now
+    const impSzCartLayer = addRasterLayer('imp_shenzhen_cart_tiles');
+    const impChicagoCartLayer = addRasterLayer('imp_chicago_cart_tiles');
 
     // Set initial visibility
     poiShenzhenLayer.alpha = 0.7;
     poiChicagoLayer.alpha = 0.7;
     impSzCartLayer.show = false; impSzCartLayer.alpha = 0.8;
-    impSzCnnLayer.show = false; impSzCnnLayer.alpha = 0.8;
     impChicagoCartLayer.show = false; impChicagoCartLayer.alpha = 0.8;
-    impChicagoCnnLayer.show = false; impChicagoCnnLayer.alpha = 0.8;
     
+    // --- Setup checkboxes ---
     const shenzhenLocation = Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000);
     const chicagoLocation = Cesium.Cartesian3.fromDegrees(-87.6298, 41.8781, 200000);
     const poiCheckboxes = [document.getElementById('shenzhen-poi-checkbox'), document.getElementById('chicago-poi-checkbox')];
-    const impCheckboxes = [document.getElementById('sz-cart-checkbox'), document.getElementById('sz-cnn-checkbox'), document.getElementById('chicago-cart-checkbox'), document.getElementById('chicago-cnn-checkbox')];
+    // UPDATED: Only reference the two checkboxes that exist in the HTML
+    const impCheckboxes = [document.getElementById('sz-cart-checkbox'), document.getElementById('chicago-cart-checkbox')];
 
     function setupCheckbox(checkbox, layer, flyToLocation) {
         checkbox.addEventListener('change', function(event) {
@@ -188,9 +175,7 @@
     setupCheckbox(poiCheckboxes[0], poiShenzhenLayer, shenzhenLocation);
     setupCheckbox(poiCheckboxes[1], poiChicagoLayer, chicagoLocation);
     setupCheckbox(impCheckboxes[0], impSzCartLayer, shenzhenLocation);
-    setupCheckbox(impCheckboxes[1], impSzCnnLayer, shenzhenLocation);
-    setupCheckbox(impCheckboxes[2], impChicagoCartLayer, chicagoLocation);
-    setupCheckbox(impCheckboxes[3], impChicagoCnnLayer, chicagoLocation);
+    setupCheckbox(impCheckboxes[1], impChicagoCartLayer, chicagoLocation);
     
     function updateLegends() {
         document.getElementById('legend-panel-poi').style.display = poiCheckboxes.some(cb => cb.checked) ? 'block' : 'none';
