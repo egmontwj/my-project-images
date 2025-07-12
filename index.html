@@ -9,7 +9,7 @@
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 
   <style>
-    /* All CSS is from your stable version */
+    /* All CSS is the same */
     html, body, #cesiumContainer { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; }
     .info-panel { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(40, 40, 40, 0.8); color: white; padding: 10px 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000; text-align: center; }
     .info-panel h1 { margin: 0; font-size: 2em; color: white; }
@@ -72,7 +72,7 @@
       Citation & further information: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel<br>impervious surface estimation...</a>
     </li>
   </ul>
-    <hr>
+  <hr>
   <h4>CRSEI Maps</h4>
     <ul>
     <li>
@@ -118,6 +118,7 @@
   </div>
 </div>
 
+
 <div id="data-panel" class="ui-panel">
   <h3 class="panel-title">Value by Click</h3>
   <span id="coords-value">Click on the map</span>
@@ -151,11 +152,8 @@
       })
     );
     
-    // --- UPDATED BUCKET NAME ---
-    const bucketName = 'researchglobe2';
+    const bucketName = 'myearth-465423-bucket';
 
-    // This version of the code is simplified to match your working base.
-    // It does not include the 'rectangle' or 'tilingScheme' fixes as they seemed to cause instability.
     function addRasterLayer(path) {
         return viewer.imageryLayers.addImageryProvider(
             new Cesium.UrlTemplateImageryProvider({
@@ -165,11 +163,13 @@
         );
     }
     
-    // --- Load all layers from the NEW bucket ---
+    // --- Load all layers ---
     const poiShenzhenLayer = addRasterLayer('shenzhen_tiles');
     const poiChicagoLayer = addRasterLayer('chicago_tiles');
+    // For now, we only have the CART impervious layers available from your stable version
     const impSzCartLayer = addRasterLayer('imp_shenzhen_cart_tiles');
     const impChicagoCartLayer = addRasterLayer('imp_chicago_cart_tiles');
+    // NEW: Load the three CRSEI layers
     const crsei2001Layer = addRasterLayer('crsei_2001_tiles');
     const crsei2010Layer = addRasterLayer('crsei_2010_tiles');
     const crsei2020Layer = addRasterLayer('crsei_2020_tiles');
@@ -207,10 +207,12 @@
     setupCheckbox(poiCheckboxes[1], poiChicagoLayer, chicagoLocation);
     setupCheckbox(impCheckboxes[0], impSzCartLayer, shenzhenLocation);
     setupCheckbox(impCheckboxes[1], impChicagoCartLayer, chicagoLocation);
+    // CRSEI layers are global, so no flyTo location is needed
     setupCheckbox(crseiCheckboxes[0], crsei2001Layer, null);
     setupCheckbox(crseiCheckboxes[1], crsei2010Layer, null);
     setupCheckbox(crseiCheckboxes[2], crsei2020Layer, null);
     
+    // --- Logic to control which legend is visible ---
     function updateLegends() {
         document.getElementById('legend-panel-poi').style.display = poiCheckboxes.some(cb => cb.checked) ? 'block' : 'none';
         document.getElementById('legend-panel-imp').style.display = impCheckboxes.some(cb => cb.checked) ? 'block' : 'none';
