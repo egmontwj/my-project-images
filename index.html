@@ -15,44 +15,14 @@
     .info-panel h1 { margin: 0; font-size: 2em; color: white; }
     .ui-panel { background: rgba(40, 40, 40, 0.8); color: white; padding: 10px 15px; border-radius: 8px; z-index: 1000; font-size: 13px; }
     .panel-title { font-size: 16px; font-weight: bold; margin-top: 0; margin-bottom: 10px; }
-    #layer-panel {
-      position: absolute;
-      top: 95px;
-      left: 20px;
-      /* Adjusted width for better text alignment */
-      width: 320px; 
-    }
-    #layer-panel h4 {
-      margin-top: 15px;
-      margin-bottom: 10px;
-    }
-    #layer-panel ul {
-      list-style: none;
-      margin: 0;
-      padding-left: 15px; 
-    }
-    #layer-panel li {
-      margin-bottom: 5px;
-    }
-    #layer-panel label {
-      vertical-align: middle;
-      padding-left: 5px;
-    }
-    /* UPDATED: CSS for citation formatting */
-    #layer-panel .citation {
-      margin-top: 10px;
-      font-size: 11px;
-      font-style: italic;
-      line-height: 1.4; /* Improves readability of wrapped text */
-      text-align: justify; /* Justify alignment */
-    }
-    #layer-panel .citation a {
-      color: #93c5fd;
-      text-decoration: none;
-    }
-    #layer-panel .citation a:hover {
-      text-decoration: underline;
-    }
+    #layer-panel { position: absolute; top: 95px; left: 20px; width: 350px; }
+    #layer-panel h4 { margin-top: 15px; margin-bottom: 10px; }
+    #layer-panel ul { list-style: none; margin: 0; padding-left: 15px; }
+    #layer-panel li { margin-bottom: 5px; }
+    #layer-panel label { vertical-align: middle; padding-left: 5px; }
+    #layer-panel .citation { margin-top: 10px; font-size: 11px; font-style: italic; }
+    #layer-panel .citation a { color: #93c5fd; text-decoration: none; }
+    #layer-panel .citation a:hover { text-decoration: underline; }
     .legend-panel { position: absolute; bottom: 40px; left: 20px; display: none; }
     .legend-panel.visible { display: block; }
     .legend-subtitle { font-size: 12px; font-style: italic; text-align: center; margin: -8px 0 8px 0; }
@@ -64,11 +34,7 @@
     #contact-panel p { margin: 5px 0; }
     #contact-panel a { color: #93c5fd; text-decoration: none; }
     #contact-panel a:hover { text-decoration: underline; }
-    hr { 
-      border-color: rgba(128, 128, 128, 0.5); 
-      /* Adjusted margin for new position */
-      margin: 15px 0 10px 0;
-    }
+    hr { border-color: rgba(128, 128, 128, 0.5); margin: 15px 0; }
   </style>
 </head>
 <body>
@@ -80,7 +46,7 @@
 
 <div id="layer-panel" class="ui-panel">
   <h3 class="panel-title">Layer Control</h3>
-  <hr> <h4>Kernel density map of geotagged post (2021)</h4>
+  <h4>Kernel density map of geotagged post (2021)</h4>
   <ul>
     <li>
       <input type="checkbox" id="shenzhen-poi-checkbox" checked>
@@ -91,7 +57,7 @@
       <label for="chicago-poi-checkbox">Chicago, USA</label>
     </li>
   </ul>
- 
+  <hr> 
   <h4>Impervious Density Map (2021)</h4>
   <ul>
     <li>
@@ -103,7 +69,23 @@
       <label for="chicago-cart-checkbox">Chicago, USA</label>
     </li>
      <li class="citation">
-      Citation & further information: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel impervious surface estimation based on point of interest (POI) data</a>
+      Citation & further information: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel<br>impervious surface estimation...</a>
+    </li>
+  </ul>
+  <hr>
+  <h4>CRSEI Maps</h4>
+    <ul>
+    <li>
+      <input type="checkbox" id="crsei-2001-checkbox">
+      <label for="crsei-2001-checkbox">CRSEI 2001</label>
+    </li>
+    <li>
+      <input type="checkbox" id="crsei-2010-checkbox">
+      <label for="crsei-2010-checkbox">CRSEI 2010</label>
+    </li>
+    <li>
+      <input type="checkbox" id="crsei-2020-checkbox">
+      <label for="crsei-2020-checkbox">CRSEI 2020</label>
     </li>
   </ul>
 </div>
@@ -117,7 +99,6 @@
     <span>13000</span>
   </div>
 </div>
-
 <div id="legend-panel-imp" class="legend-panel ui-panel" style="bottom: 160px;">
   <h3 class="panel-title">Legend</h3>
   <h4 class="legend-subtitle">Impervious Density</h4>
@@ -127,6 +108,16 @@
     <span>1.0</span>
   </div>
 </div>
+<div id="legend-panel-crsei" class="legend-panel ui-panel" style="bottom: 280px;">
+  <h3 class="panel-title">Legend</h3>
+  <h4 class="legend-subtitle">CRSEI</h4>
+  <div class="legend-gradient" style="background: linear-gradient(to right, #d7191c, #fdae61, #ffffbf, #abdda4, #2b83ba);"></div>
+  <div class="legend-labels">
+    <span>0</span>
+    <span>10000</span>
+  </div>
+</div>
+
 
 <div id="data-panel" class="ui-panel">
   <h3 class="panel-title">Value by Click</h3>
@@ -141,6 +132,7 @@
   <p>wangj329@msu.edu</p>
 </div>
 
+
 <script>
   let viewer;
   try {
@@ -153,6 +145,7 @@
   } catch (error) { console.error("ERROR creating viewer:", error); }
 
   if (viewer) {
+    // This is the redundant line from your working version. We will keep it.
     viewer.imageryLayers.addImageryProvider(
       new Cesium.OpenStreetMapImageryProvider({
         url: 'https://a.tile.openstreetmap.org/'
@@ -170,20 +163,32 @@
         );
     }
     
+    // --- Load all layers ---
     const poiShenzhenLayer = addRasterLayer('shenzhen_tiles');
     const poiChicagoLayer = addRasterLayer('chicago_tiles');
+    // For now, we only have the CART impervious layers available from your stable version
     const impSzCartLayer = addRasterLayer('imp_shenzhen_cart_tiles');
     const impChicagoCartLayer = addRasterLayer('imp_chicago_cart_tiles');
+    // NEW: Load the three CRSEI layers
+    const crsei2001Layer = addRasterLayer('crsei_2001_tiles');
+    const crsei2010Layer = addRasterLayer('crsei_2010_tiles');
+    const crsei2020Layer = addRasterLayer('crsei_2020_tiles');
 
+    // Set initial visibility
     poiShenzhenLayer.alpha = 0.7;
     poiChicagoLayer.alpha = 0.7;
     impSzCartLayer.show = false; impSzCartLayer.alpha = 0.8;
     impChicagoCartLayer.show = false; impChicagoCartLayer.alpha = 0.8;
+    crsei2001Layer.show = false; crsei2001Layer.alpha = 0.8;
+    crsei2010Layer.show = false; crsei2010Layer.alpha = 0.8;
+    crsei2020Layer.show = false; crsei2020Layer.alpha = 0.8;
     
+    // --- Setup checkboxes ---
     const shenzhenLocation = Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000);
     const chicagoLocation = Cesium.Cartesian3.fromDegrees(-87.6298, 41.8781, 200000);
     const poiCheckboxes = [document.getElementById('shenzhen-poi-checkbox'), document.getElementById('chicago-poi-checkbox')];
     const impCheckboxes = [document.getElementById('sz-cart-checkbox'), document.getElementById('chicago-cart-checkbox')];
+    const crseiCheckboxes = [document.getElementById('crsei-2001-checkbox'), document.getElementById('crsei-2010-checkbox'), document.getElementById('crsei-2020-checkbox')];
 
     function setupCheckbox(checkbox, layer, flyToLocation) {
         checkbox.addEventListener('change', function(event) {
@@ -202,10 +207,16 @@
     setupCheckbox(poiCheckboxes[1], poiChicagoLayer, chicagoLocation);
     setupCheckbox(impCheckboxes[0], impSzCartLayer, shenzhenLocation);
     setupCheckbox(impCheckboxes[1], impChicagoCartLayer, chicagoLocation);
+    // CRSEI layers are global, so no flyTo location is needed
+    setupCheckbox(crseiCheckboxes[0], crsei2001Layer, null);
+    setupCheckbox(crseiCheckboxes[1], crsei2010Layer, null);
+    setupCheckbox(crseiCheckboxes[2], crsei2020Layer, null);
     
+    // --- Logic to control which legend is visible ---
     function updateLegends() {
         document.getElementById('legend-panel-poi').style.display = poiCheckboxes.some(cb => cb.checked) ? 'block' : 'none';
         document.getElementById('legend-panel-imp').style.display = impCheckboxes.some(cb => cb.checked) ? 'block' : 'none';
+        document.getElementById('legend-panel-crsei').style.display = crseiCheckboxes.some(cb => cb.checked) ? 'block' : 'none';
     }
 
     viewer.screenSpaceEventHandler.setInputAction(function(movement) {
