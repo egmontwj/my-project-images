@@ -83,13 +83,13 @@
      #layer-panel .citation a:hover {
       text-decoration: underline;
     }
-    #legend-panel-poi, #legend-panel-imp {
+    #legend-panel {
       position: absolute;
       bottom: 40px;
       left: 20px;
       display: none;
     }
-    #legend-panel-poi.visible, #legend-panel-imp.visible {
+    #legend-panel.visible {
       display: block;
     }
     .legend-subtitle {
@@ -101,6 +101,7 @@
     .legend-gradient {
       width: 150px;
       height: 20px;
+      background: linear-gradient(to right, #0000FF, #FFFF00, #FFA500, #FF0000);
       border-radius: 3px;
     }
     .legend-labels {
@@ -134,7 +135,6 @@
     #contact-panel a:hover {
       text-decoration: underline;
     }
-    hr { border-color: rgba(128, 128, 128, 0.5); margin: 15px 0; }
   </style>
 </head>
 <body>
@@ -149,63 +149,32 @@
   <h4>Kernel density map of geotagged post (2021)</h4>
   <ul>
     <li>
-      <input type="checkbox" id="shenzhen-poi-checkbox" checked>
-      <label for="shenzhen-poi-checkbox">Shenzhen, China</label>
+      <input type="checkbox" id="shenzhen-checkbox" value="shenzhen" checked>
+      <label for="shenzhen-checkbox">Shenzhen, China</label>
     </li>
     <li>
-      <input type="checkbox" id="chicago-poi-checkbox" checked>
-      <label for="chicago-poi-checkbox">Chicago, USA</label>
+      <input type="checkbox" id="chicago-checkbox" value="chicago" checked>
+      <label for="chicago-checkbox">Chicago, USA</label>
     </li>
     <li class="citation">
-      Citation: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel impervious surface estimation...</a>
-    </li>
-  </ul>
-  <hr> 
-  <h4>Impervious Density</h4>
-  <ul>
-    <li>
-      <input type="checkbox" id="sz-cart-checkbox">
-      <label for="sz-cart-checkbox">Shenzhen Impervious Density by CART</label>
-    </li>
-     <li>
-      <input type="checkbox" id="sz-cnn-checkbox">
-      <label for="sz-cnn-checkbox">Shenzhen Impervious Density by CNN</label>
-    </li>
-    <li>
-      <input type="checkbox" id="chicago-cart-checkbox">
-      <label for="chicago-cart-checkbox">Chicago Impervious Density by CART</label>
-    </li>
-    <li>
-      <input type="checkbox" id="chicago-cnn-checkbox">
-      <label for="chicago-cnn-checkbox">Chicago Impervious Density by CNN</label>
+      Citation & further information: <a href="https://www.sciencedirect.com/science/article/pii/S1569843225001852" target="_blank" rel="noopener noreferrer">Improving subpixel impervious surface estimation based on point of interest (POI) data</a>
     </li>
   </ul>
 </div>
 
-<div id="legend-panel-poi" class="legend-panel ui-panel">
+<div id="legend-panel" class="ui-panel">
   <h3 class="panel-title">Legend</h3>
   <h4 class="legend-subtitle">POI Kernel Density</h4>
-  <div class="legend-gradient" style="background: linear-gradient(to right, #0000FF, #FFFF00, #FFA500, #FF0000);"></div>
+  <div class="legend-gradient"></div>
   <div class="legend-labels">
     <span>0</span>
     <span>13000</span>
   </div>
 </div>
 
-<div id="legend-panel-imp" class="legend-panel ui-panel">
-  <h3 class="panel-title">Legend</h3>
-  <h4 class="legend-subtitle">Impervious Density</h4>
-  <div class="legend-gradient" style="background: linear-gradient(to right, #000000, #FFFFFF);"></div>
-  <div class="legend-labels">
-    <span>0%</span>
-    <span>100%</span>
-  </div>
-</div>
-
 <div id="data-panel" class="ui-panel">
   <h3 class="panel-title">Value by Click</h3>
-  <span id="coords-value">Click on the map</span><br>
-  Value: <span id="attribute-value">N/A (visual only)</span>
+  <span id="coords-value">Click on the map</span>
 </div>
 
 <div id="contact-panel" class="ui-panel">
@@ -220,78 +189,111 @@
   let viewer;
   try {
     viewer = new Cesium.Viewer('cesiumContainer', {
-      imageryProvider: new Cesium.OpenStreetMapImageryProvider({ url : 'https://a.tile.openstreetmap.org/' }),
-      animation: false, timeline: false, geocoder: false, homeButton: false, sceneModePicker: false, baseLayerPicker: false, navigationHelpButton: false,
+      imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+          url : 'https://a.tile.openstreetmap.org/'
+      }),
+      animation: false,
+      timeline: false,
+      geocoder: false,
+      homeButton: false,
+      sceneModePicker: false,
+      baseLayerPicker: false,
+      navigationHelpButton: false,
     });
-  } catch (error) { console.error("ERROR creating viewer:", error); }
+  } catch (error) {
+    console.error("ERROR creating viewer:", error);
+  }
 
   if (viewer) {
+    viewer.imageryLayers.addImageryProvider(
+      new Cesium.OpenStreetMapImageryProvider({
+        url: 'https://a.tile.openstreetmap.org/'
+      })
+    );
+
     const bucketName = 'myearth-465423-bucket';
+    const shenzhenTileUrl = `https://storage.googleapis.com/${bucketName}/shenzhen_tiles/{z}/{x}/{y}.png`;
+    const chicagoTileUrl = `https://storage.googleapis.com/${bucketName}/chicago_tiles/{z}/{x}/{y}.png`;
 
-    function addRasterLayer(path) {
-      const provider = new Cesium.UrlTemplateImageryProvider({
-          url: `https://storage.googleapis.com/${bucketName}/${path}/{z}/{x}/{y}.png`,
-          maximumLevel: 13
-      });
-      return viewer.imageryLayers.add(provider);
-    }
+    const shenzhenProvider = new Cesium.UrlTemplateImageryProvider({
+        url: shenzhenTileUrl,
+        maximumLevel: 13
+    });
+    const chicagoProvider = new Cesium.UrlTemplateImageryProvider({
+        url: chicagoTileUrl,
+        maximumLevel: 13
+    });
+
+    const chicagoLayer = viewer.imageryLayers.addImageryProvider(chicagoProvider);
+    const shenzhenLayer = viewer.imageryLayers.addImageryProvider(shenzhenProvider);
+
+    chicagoLayer.alpha = 0.7;
+    shenzhenLayer.alpha = 0.7;
     
-    const poiShenzhenLayer = addRasterLayer('shenzhen_tiles');
-    const poiChicagoLayer = addRasterLayer('chicago_tiles');
-    const impSzCartLayer = addRasterLayer('imp_shenzhen_cart_tiles');
-    const impSzCnnLayer = addRasterLayer('imp_shenzhen_cnn_tiles');
-    const impChicagoCartLayer = addRasterLayer('imp_chicago_cart_tiles');
-    const impChicagoCnnLayer = addRasterLayer('imp_chicago_cnn_tiles');
+    const shenzhenCheckbox = document.getElementById('shenzhen-checkbox');
+    const chicagoCheckbox = document.getElementById('chicago-checkbox');
+    const legendPanel = document.getElementById('legend-panel');
 
-    poiShenzhenLayer.alpha = 0.7;
-    poiChicagoLayer.alpha = 0.7;
-    impSzCartLayer.show = false; impSzCartLayer.alpha = 0.8;
-    impSzCnnLayer.show = false; impSzCnnLayer.alpha = 0.8;
-    impChicagoCartLayer.show = false; impChicagoCartLayer.alpha = 0.8;
-    impChicagoCnnLayer.show = false; impChicagoCnnLayer.alpha = 0.8;
-
-    const poiCheckboxes = [document.getElementById('shenzhen-poi-checkbox'), document.getElementById('chicago-poi-checkbox')];
-    const impCheckboxes = [document.getElementById('sz-cart-checkbox'), document.getElementById('sz-cnn-checkbox'), document.getElementById('chicago-cart-checkbox'), document.getElementById('chicago-cnn-checkbox')];
-    
-    function setupCheckbox(checkboxId, layer, flyToLocation) {
-        const checkbox = document.getElementById(checkboxId);
-        checkbox.addEventListener('change', function(event) {
-            layer.show = event.target.checked;
-            if (event.target.checked && flyToLocation) {
-                viewer.camera.flyTo({
-                    destination: flyToLocation,
-                    orientation: { heading: Cesium.Math.toRadians(0.0), pitch: Cesium.Math.toRadians(-90.0), roll: 0.0 }
-                });
-            }
-            updateLegends();
-        });
+    function updateLegendVisibility() {
+      if (shenzhenCheckbox.checked || chicagoCheckbox.checked) {
+        legendPanel.classList.add('visible');
+      } else {
+        legendPanel.classList.remove('visible');
+      }
     }
 
-    function updateLegends() {
-        document.getElementById('legend-panel-poi').style.display = poiCheckboxes.some(cb => cb.checked) ? 'block' : 'none';
-        document.getElementById('legend-panel-imp').style.display = impCheckboxes.some(cb => cb.checked) ? 'block' : 'none';
-    }
-    
-    const shenzhenLocation = Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000);
-    const chicagoLocation = Cesium.Cartesian3.fromDegrees(-87.6298, 41.8781, 200000);
+    shenzhenCheckbox.addEventListener('change', function(event) {
+        shenzhenLayer.show = event.target.checked;
+        if (event.target.checked) {
+            viewer.camera.flyTo({
+                destination: Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000),
+                orientation: { heading: Cesium.Math.toRadians(0.0), pitch: Cesium.Math.toRadians(-90.0), roll: 0.0 }
+            });
+        }
+        updateLegendVisibility();
+    });
 
-    setupCheckbox(poiCheckboxes[0], poiShenzhenLayer, shenzhenLocation);
-    setupCheckbox(poiCheckboxes[1], poiChicagoLayer, chicagoLocation);
-    setupCheckbox(impCheckboxes[0], impSzCartLayer, shenzhenLocation);
-    setupCheckbox(impCheckboxes[1], impSzCnnLayer, shenzhenLocation);
-    setupCheckbox(impCheckboxes[2], impChicagoCartLayer, chicagoLocation);
-    setupCheckbox(impCheckboxes[3], impChicagoCnnLayer, chicagoLocation);
+    chicagoCheckbox.addEventListener('change', function(event) {
+        chicagoLayer.show = event.target.checked;
+        if (event.target.checked) {
+            viewer.camera.flyTo({
+                destination: Cesium.Cartesian3.fromDegrees(-87.6298, 41.8781, 200000),
+                orientation: { heading: Cesium.Math.toRadians(0.0), pitch: Cesium.Math.toRadians(-90.0), roll: 0.0 }
+            });
+        }
+        updateLegendVisibility();
+    });
+    
+    function toDMS(decimal, type) {
+        const absDecimal = Math.abs(decimal);
+        const degrees = Math.floor(absDecimal);
+        const minutes_float = (absDecimal - degrees) * 60;
+        const minutes = Math.floor(minutes_float);
+        const seconds = ((minutes_float - minutes) * 60).toFixed(2);
+        
+        let direction;
+        if (type === 'lat') {
+            direction = decimal >= 0 ? 'N' : 'S';
+        } else {
+            direction = decimal >= 0 ? 'E' : 'W';
+        }
+        
+        return `${degrees}°${minutes}′${seconds}″ ${direction}`;
+    }
 
     viewer.screenSpaceEventHandler.setInputAction(function(movement) {
-        const coordsSpan = document.getElementById('coords-value');
         const cartesian = viewer.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
         if (cartesian) {
             const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-            const longitude = Cesium.Math.toDegrees(cartographic.longitude).toFixed(5);
-            const latitude = Cesium.Math.toDegrees(cartographic.latitude).toFixed(5);
-            coordsSpan.textContent = `Lat: ${latitude}, Lon: ${longitude}`;
+            const longitude = Cesium.Math.toDegrees(cartographic.longitude);
+            const latitude = Cesium.Math.toDegrees(cartographic.latitude);
+            
+            const latDMS = toDMS(latitude, 'lat');
+            const lonDMS = toDMS(longitude, 'lon');
+            
+            document.getElementById('coords-value').textContent = `${latDMS}, ${lonDMS}`;
         } else {
-            coordsSpan.textContent = 'No position on globe';
+            document.getElementById('coords-value').textContent = 'No position on globe';
         }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
@@ -303,7 +305,7 @@
       initialCameraFlight();
     });
 
-    updateLegends();
+    updateLegendVisibility();
   }
 </script>
 
