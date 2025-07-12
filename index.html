@@ -9,7 +9,6 @@
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 
   <style>
-    /* All CSS is the same as the stable version... */
     html, body, #cesiumContainer { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; }
     .info-panel { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(40, 40, 40, 0.8); color: white; padding: 10px 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000; text-align: center; }
     .info-panel h1 { margin: 0; font-size: 2em; color: white; }
@@ -23,8 +22,8 @@
     #layer-panel .citation { margin-top: 10px; font-size: 11px; font-style: italic; }
     #layer-panel .citation a { color: #93c5fd; text-decoration: none; }
     #layer-panel .citation a:hover { text-decoration: underline; }
-    .legend-panel { position: absolute; bottom: 40px; left: 20px; display: none; }
-    .legend-panel.visible { display: block; }
+    #legend-panel-poi, #legend-panel-imp { position: absolute; bottom: 40px; left: 20px; display: none; }
+    #legend-panel-poi.visible, #legend-panel-imp.visible { display: block; }
     .legend-subtitle { font-size: 12px; font-style: italic; text-align: center; margin: -8px 0 8px 0; }
     .legend-gradient { width: 150px; height: 20px; border-radius: 3px; }
     .legend-labels { display: flex; justify-content: space-between; font-size: 12px; padding-top: 3px; }
@@ -67,6 +66,18 @@
       <input type="checkbox" id="sz-cart-checkbox">
       <label for="sz-cart-checkbox">Shenzhen Impervious Density by CART</label>
     </li>
+     <li>
+      <input type="checkbox" id="sz-cnn-checkbox">
+      <label for="sz-cnn-checkbox">Shenzhen Impervious Density by CNN</label>
+    </li>
+    <li>
+      <input type="checkbox" id="chicago-cart-checkbox">
+      <label for="chicago-cart-checkbox">Chicago Impervious Density by CART</label>
+    </li>
+    <li>
+      <input type="checkbox" id="chicago-cnn-checkbox">
+      <label for="chicago-cnn-checkbox">Chicago Impervious Density by CNN</label>
+    </li>
   </ul>
 </div>
 
@@ -90,7 +101,6 @@
   </div>
 </div>
 
-
 <div id="data-panel" class="ui-panel">
   <h3 class="panel-title">Value by Click</h3>
   <span id="coords-value">Click on the map</span>
@@ -98,112 +108,4 @@
 
 <div id="contact-panel" class="ui-panel">
   <h3 class="panel-title">Contact Info</h3>
-  <p><strong><a href="http://globalchange.msu.edu/directory/wang-jin-bio.html" target="_blank" rel="noopener noreferrer">Dr. Wang Jin</a></strong></p>
-  <p><a href="https://scholar.google.com/citations?user=ogvm4OsAAAAJ&hl=en" target="_blank" rel="noopener noreferrer">Google Scholar</a></p>
-  <p>Michigan State University</p>
-  <p>wangj329@msu.edu</p>
-</div>
-
-
-<script>
-  let viewer;
-  try {
-    viewer = new Cesium.Viewer('cesiumContainer', {
-      imageryProvider: new Cesium.OpenStreetMapImageryProvider({
-          url : 'https://a.tile.openstreetmap.org/'
-      }),
-      animation: false, timeline: false, geocoder: false, homeButton: false, sceneModePicker: false, baseLayerPicker: false, navigationHelpButton: false,
-    });
-  } catch (error) { console.error("ERROR creating viewer:", error); }
-
-  if (viewer) {
-    // This is the redundant line from your working version. We will keep it.
-    viewer.imageryLayers.addImageryProvider(
-      new Cesium.OpenStreetMapImageryProvider({
-        url: 'https://a.tile.openstreetmap.org/'
-      })
-    );
-
-    const bucketName = 'myearth-465423-bucket';
-
-    function addRasterLayer(path) {
-        return viewer.imageryLayers.addImageryProvider(
-            new Cesium.UrlTemplateImageryProvider({
-                url: `https://storage.googleapis.com/${bucketName}/${path}/{z}/{x}/{y}.png`,
-                maximumLevel: 13
-            })
-        );
-    }
-    
-    // --- Load the two original layers + ONE new test layer ---
-    const poiShenzhenLayer = addRasterLayer('shenzhen_tiles');
-    const poiChicagoLayer = addRasterLayer('chicago_tiles');
-    const impSzCartLayer = addRasterLayer('imp_shenzhen_cart_tiles');
-
-    // Set initial visibility
-    poiShenzhenLayer.alpha = 0.7;
-    poiChicagoLayer.alpha = 0.7;
-    impSzCartLayer.show = false; // Start hidden
-    impSzCartLayer.alpha = 0.8;
-
-    
-    const shenzhenLocation = Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000);
-    const chicagoLocation = Cesium.Cartesian3.fromDegrees(-87.6298, 41.8781, 200000);
-
-    // --- References to checkboxes ---
-    const poiCheckboxes = [document.getElementById('shenzhen-poi-checkbox'), document.getElementById('chicago-poi-checkbox')];
-    const impCheckboxes = [document.getElementById('sz-cart-checkbox')]; // Only one for now
-
-    // --- Checkbox logic for POI layers ---
-    poiCheckboxes[0].addEventListener('change', (e) => {
-        poiShenzhenLayer.show = e.target.checked;
-        if(e.target.checked) viewer.camera.flyTo({destination: shenzhenLocation});
-        updateLegends();
-    });
-    poiCheckboxes[1].addEventListener('change', (e) => {
-        poiChicagoLayer.show = e.target.checked;
-        if(e.target.checked) viewer.camera.flyTo({destination: chicagoLocation});
-        updateLegends();
-    });
-
-    // --- Checkbox logic for the ONE new impervious layer ---
-    impCheckboxes[0].addEventListener('change', (e) => {
-        impSzCartLayer.show = e.target.checked;
-        if(e.target.checked) viewer.camera.flyTo({destination: shenzhenLocation});
-        updateLegends();
-    });
-
-    // --- Logic to control which legend is visible ---
-    function updateLegends() {
-        document.getElementById('legend-panel-poi').style.display = poiCheckboxes.some(cb => cb.checked) ? 'block' : 'none';
-        document.getElementById('legend-panel-imp').style.display = impCheckboxes.some(cb => cb.checked) ? 'block' : 'none';
-    }
-
-    // --- Click handler ---
-    viewer.screenSpaceEventHandler.setInputAction(function(movement) {
-        const cartesian = viewer.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
-        if (cartesian) {
-            const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-            const longitude = Cesium.Math.toDegrees(cartographic.longitude).toFixed(5);
-            const latitude = Cesium.Math.toDegrees(cartographic.latitude).toFixed(5);
-            document.getElementById('coords-value').textContent = `Lat: ${latitude}, Lon: ${longitude}`;
-        } else {
-            document.getElementById('coords-value').textContent = 'No position on globe';
-        }
-    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
-    // --- Initial setup calls ---
-    const initialCameraFlight = viewer.scene.postRender.addEventListener(function() {
-      viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(114.3, 30.6, 3500000),
-        orientation: { heading: Cesium.Math.toRadians(0.0), pitch: Cesium.Math.toRadians(-90.0), roll: 0.0 }
-      });
-      initialCameraFlight();
-    });
-
-    updateLegends();
-  }
-</script>
-
-</body>
-</html>
+  <p><strong><a href
