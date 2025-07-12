@@ -9,7 +9,7 @@
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 
   <style>
-    /* All CSS is the same */
+    /* All CSS is the same as your working version */
     html, body, #cesiumContainer { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; }
     .info-panel { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(40, 40, 40, 0.8); color: white; padding: 10px 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000; text-align: center; }
     .info-panel h1 { margin: 0; font-size: 2em; color: white; }
@@ -135,21 +135,21 @@
       })
     );
 
-    // --- NEW: Define the bounding boxes for your data ---
+    // --- DEFINE THE BOUNDING BOXES FOR YOUR DATA ---
     const shenzhenRectangle = Cesium.Rectangle.fromDegrees(113.7, 22.4, 114.7, 22.9);
     const chicagoRectangle = Cesium.Rectangle.fromDegrees(-88.0, 41.6, -87.5, 42.1);
-
+    
     const bucketName = 'myearth-465423-bucket';
 
-    // UPDATED: The helper function now accepts a rectangle
+    // --- UPDATED HELPER FUNCTION ---
     function addRasterLayer(path, rectangle) {
         return viewer.imageryLayers.addImageryProvider(
             new Cesium.UrlTemplateImageryProvider({
                 url: `https://storage.googleapis.com/${bucketName}/${path}/{z}/{x}/{y}.png`,
                 maximumLevel: 13,
-                // --- THIS IS THE FIX ---
-                // Tell the layer where its data is, preventing 404 errors
-                rectangle: rectangle 
+                // Add the two crucial properties to prevent errors
+                rectangle: rectangle,
+                tilingScheme: new Cesium.GeographicTilingScheme()
             })
         );
     }
@@ -169,8 +169,8 @@
     impSzCnnLayer.show = false; impSzCnnLayer.alpha = 0.8;
     impChicagoCartLayer.show = false; impChicagoCartLayer.alpha = 0.8;
     impChicagoCnnLayer.show = false; impChicagoCnnLayer.alpha = 0.8;
-
-    // --- All remaining JavaScript is the same ---
+    
+    // --- All checkbox and other logic is the same ---
     const shenzhenLocation = Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000);
     const chicagoLocation = Cesium.Cartesian3.fromDegrees(-87.6298, 41.8781, 200000);
     const poiCheckboxes = [document.getElementById('shenzhen-poi-checkbox'), document.getElementById('chicago-poi-checkbox')];
