@@ -120,36 +120,38 @@
   let viewer;
   try {
     viewer = new Cesium.Viewer('cesiumContainer', {
-      // The WebMercatorTilingScheme is the default, but we set it explicitly for clarity.
-      tilingScheme: new Cesium.WebMercatorTilingScheme(),
-      // We start with a base map, but it will be at the bottom of the layer stack.
-      imageryProvider: new Cesium.OpenStreetMapImageryProvider({
-          url : 'https://a.tile.openstreetmap.org/'
-      }),
+      imageryProvider: new Cesium.OpenStreetMapImageryProvider({ url : 'https://a.tile.openstreetmap.org/' }),
       animation: false, timeline: false, geocoder: false, homeButton: false, sceneModePicker: false, baseLayerPicker: false, navigationHelpButton: false,
     });
   } catch (error) { console.error("ERROR creating viewer:", error); }
 
   if (viewer) {
-    // --- Define the precise bounding boxes from your colleague's code ---
+    // --- THIS IS THE FIX ---
+    // Re-adding the line that stabilizes the base map in your environment.
+    viewer.imageryLayers.addImageryProvider(
+      new Cesium.OpenStreetMapImageryProvider({
+        url: 'https://a.tile.openstreetmap.org/'
+      })
+    );
+
+    // --- Define the precise bounding boxes ---
     const shenzhenRectangle = Cesium.Rectangle.fromDegrees(113.96589986581823, 22.483607814811478, 114.11485075871127, 22.621958407360754);
     const chicagoRectangle = Cesium.Rectangle.fromDegrees(-87.77882831051319, 41.83091448344418, -87.59619153435915, 41.96736213704779);
     
     const bucketName = 'myearth-465423-bucket';
 
-    // UPDATED: The helper function now accepts all necessary parameters
     function addRasterLayer(path, rectangle) {
         return viewer.imageryLayers.addImageryProvider(
             new Cesium.UrlTemplateImageryProvider({
                 url: `https://storage.googleapis.com/${bucketName}/${path}/{z}/{x}/{y}.png`,
-                rectangle: rectangle, // This tells the layer its exact boundary
+                rectangle: rectangle,
                 minimumLevel: 10,
                 maximumLevel: 13
             })
         );
     }
     
-    // --- Load all 6 layers, providing the precise rectangle for each ---
+    // Load all 6 layers
     const poiShenzhenLayer = addRasterLayer('shenzhen_tiles', shenzhenRectangle);
     const poiChicagoLayer = addRasterLayer('chicago_tiles', chicagoRectangle);
     const impSzCartLayer = addRasterLayer('imp_shenzhen_cart_tiles', shenzhenRectangle);
@@ -165,7 +167,6 @@
     impChicagoCartLayer.show = false; impChicagoCartLayer.alpha = 0.8;
     impChicagoCnnLayer.show = false; impChicagoCnnLayer.alpha = 0.8;
     
-    // --- All checkbox and other logic remains the same ---
     const shenzhenLocation = Cesium.Cartesian3.fromDegrees(114.0577, 22.5431, 200000);
     const chicagoLocation = Cesium.Cartesian3.fromDegrees(-87.6298, 41.8781, 200000);
     const poiCheckboxes = [document.getElementById('shenzhen-poi-checkbox'), document.getElementById('chicago-poi-checkbox')];
